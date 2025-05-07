@@ -1,0 +1,58 @@
+package dev.ervinszilagyi.commands;
+
+import dev.ervinszilagyi.ai.LlmClientProvider;
+import dev.ervinszilagyi.config.mcp.McpConfig;
+import dev.ervinszilagyi.config.mcp.McpConfigProvider;
+import dev.langchain4j.agent.tool.ToolSpecification;
+import dev.langchain4j.mcp.client.McpClient;
+import dev.langchain4j.mcp.client.McpResource;
+import dev.langchain4j.mcp.client.McpResourceTemplate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import picocli.CommandLine;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Map;
+
+@CommandLine.Command(name = "list", description = "List details about available MCP servers.")
+public class ListDetailsCommand implements Runnable {
+    @CommandLine.Option(names = {"-c", "--mcp"}, description = "Location of the mcp.json file.", defaultValue = "mcp.json")
+    private File mcpLocation;
+
+    @CommandLine.Option(names = {"-l", "--llm"}, description = "Location of the llm.toml file.", defaultValue = "llm.toml")
+    private File llmConfigLocation;
+
+    private static final Logger logger = LoggerFactory.getLogger(ListDetailsCommand.class);
+
+    @Override
+    public void run() {
+        try {
+            Map<String, McpClient> mcpClients = this.setupMcpClientList();
+            for (Map.Entry<String, McpClient> entry : mcpClients.entrySet()) {
+                System.out.println(entry.getKey());
+                System.out.println(" • Tools:");
+                for (ToolSpecification tool : entry.getValue().listTools()) {
+                    System.out.println("  - " + tool.name() + ": " + tool.description());
+                }
+                System.out.println(" • Resources/Resource Templates:");
+                for (McpResource resource : entry.getValue().listResources()) {
+                    System.out.println("  - " + resource.name() + ": " + resource.description() + " URI: " + resource.uri());
+                }
+                for (McpResourceTemplate resourceTemplate : entry.getValue().listResourceTemplates()) {
+                    System.out.println("  - " + resourceTemplate.name() + ": " + resourceTemplate.uriTemplate());
+                }
+            }
+        } catch (IOException e) {
+            logger.error(e.getMessage(), e);
+        }
+    }
+
+    private Map<String, McpClient> setupMcpClientList() throws IOException {
+        McpConfig mcpConfig = McpConfigProvider.loadConfig(mcpLocation);
+
+        LlmClientProvider llmClientProvider = new LlmClientProvider();
+
+        return llmClientProvider.buildMcpClientList(mcpConfig);
+    }
+}
