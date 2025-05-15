@@ -15,57 +15,50 @@ import org.jline.utils.AttributedStyle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.Writer;
+import java.io.PrintWriter;
 
 public class RequestResponseListener implements ChatModelListener {
     private final Terminal terminal;
-    private final Writer writer;
     private static final Logger logger = LoggerFactory.getLogger(RequestResponseListener.class);
 
-    public RequestResponseListener(final Terminal terminal, final Writer writer) {
+    public RequestResponseListener(final Terminal terminal) {
         this.terminal = terminal;
-        this.writer = writer;
     }
 
     @Override
     public void onRequest(ChatModelRequestContext requestContext) {
         ChatRequest chatRequest = requestContext.chatRequest();
         ChatMessage lastMessage = chatRequest.messages().getLast();
-        try {
-            switch (lastMessage) {
-                case UserMessage ignored -> {
-                    AttributedStringBuilder attributedStringBuilder = new AttributedStringBuilder();
-                    attributedStringBuilder.style(AttributedStyle.DEFAULT.foreground(AttributedStyle.GREEN))
-                            .append("• Contacting LLM with user request.\n");
-                    writer.write(attributedStringBuilder.toAnsi(terminal));
-                    writer.flush();
-                }
-                case ToolExecutionResultMessage toolExecutionResultMessage -> {
-                    AttributedStringBuilder attributedStringBuilder = new AttributedStringBuilder();
-                    attributedStringBuilder.style(AttributedStyle.DEFAULT.foreground(AttributedStyle.GREEN))
-                            .append("• Sending tool ")
-                            .append("\"")
-                            .append(toolExecutionResultMessage.toolName())
-                            .append("\"")
-                            .append(" execution result back to LLM.")
-                            .append("\n");
-                    writer.write(attributedStringBuilder.toAnsi(terminal));
-                    writer.flush();
-                }
-                default -> {
-                    AttributedStringBuilder attributedStringBuilder = new AttributedStringBuilder();
-                    attributedStringBuilder.style(AttributedStyle.DEFAULT.foreground(AttributedStyle.RED))
-                            .append("Error: Unknown message type: ")
-                            .append(lastMessage.type().name())
-                            .append("\n");
-                    writer.write(attributedStringBuilder.toAnsi(terminal));
-                    writer.flush();
-                }
+        PrintWriter writer = terminal.writer();
+        switch (lastMessage) {
+            case UserMessage ignored -> {
+                AttributedStringBuilder attributedStringBuilder = new AttributedStringBuilder();
+                attributedStringBuilder.style(AttributedStyle.DEFAULT.foreground(AttributedStyle.GREEN))
+                        .append("• Contacting LLM with user request.\n");
+                writer.write(attributedStringBuilder.toAnsi(terminal));
+                writer.flush();
             }
-        } catch (IOException e) {
-            logger.error(e.getMessage(), e);
-            throw new RuntimeException(e);
+            case ToolExecutionResultMessage toolExecutionResultMessage -> {
+                AttributedStringBuilder attributedStringBuilder = new AttributedStringBuilder();
+                attributedStringBuilder.style(AttributedStyle.DEFAULT.foreground(AttributedStyle.GREEN))
+                        .append("• Sending tool ")
+                        .append("\"")
+                        .append(toolExecutionResultMessage.toolName())
+                        .append("\"")
+                        .append(" execution result back to LLM.")
+                        .append("\n");
+                writer.write(attributedStringBuilder.toAnsi(terminal));
+                writer.flush();
+            }
+            default -> {
+                AttributedStringBuilder attributedStringBuilder = new AttributedStringBuilder();
+                attributedStringBuilder.style(AttributedStyle.DEFAULT.foreground(AttributedStyle.RED))
+                        .append("Error: Unknown message type: ")
+                        .append(lastMessage.type().name())
+                        .append("\n");
+                writer.write(attributedStringBuilder.toAnsi(terminal));
+                writer.flush();
+            }
         }
     }
 
@@ -73,6 +66,7 @@ public class RequestResponseListener implements ChatModelListener {
     public void onResponse(ChatModelResponseContext responseContext) {
         ChatResponse chatResponse = responseContext.chatResponse();
         AiMessage aiMessage = chatResponse.aiMessage();
+        PrintWriter writer = terminal.writer();
         if (aiMessage.hasToolExecutionRequests()) {
             aiMessage.toolExecutionRequests().forEach(toolExecutionRequest -> {
                 AttributedStringBuilder attributedStringBuilder = new AttributedStringBuilder();
@@ -85,12 +79,8 @@ public class RequestResponseListener implements ChatModelListener {
                         .append(toolExecutionRequest.arguments())
                         .append("\n")
                         .style(AttributedStyle.DEFAULT);
-                try {
-                    writer.write(attributedStringBuilder.toAnsi(terminal));
-                    writer.flush();
-                } catch (IOException e) {
-                    logger.error(e.getMessage(), e);
-                }
+                writer.write(attributedStringBuilder.toAnsi(terminal));
+                writer.flush();
             });
         }
     }

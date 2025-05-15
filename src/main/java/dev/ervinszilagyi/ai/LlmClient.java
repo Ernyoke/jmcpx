@@ -1,5 +1,6 @@
 package dev.ervinszilagyi.ai;
 
+import dev.langchain4j.service.Result;
 import dev.langchain4j.service.SystemMessage;
 import dev.langchain4j.service.UserMessage;
 import dev.langchain4j.service.V;
@@ -24,5 +25,5 @@ public interface LlmClient {
                     - Links formatted correctly, either as linked text (e.g., [this is linked text](https://example.com)) or automatic links using angle brackets (e.g., <http://example.com/>).
                     - Ensure clarity, conciseness, and proper formatting to enhance readability and usability.
                     """)
-    String chat(@UserMessage String question, @V("currentDateTime") String currentDateTime);
+    Result<String> chat(@UserMessage String question, @V("currentDateTime") String currentDateTime);
 }

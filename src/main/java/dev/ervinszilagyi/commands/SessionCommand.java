@@ -6,14 +6,12 @@ import dev.ervinszilagyi.config.llm.LlmClientConfigProvider;
 import dev.ervinszilagyi.config.llm.LlmConfig;
 import dev.ervinszilagyi.config.mcp.McpConfig;
 import dev.ervinszilagyi.config.mcp.McpConfigProvider;
-import dev.ervinszilagyi.md.MarkDownPrinter;
+import dev.ervinszilagyi.md.StylizedPrinter;
 import dev.ervinszilagyi.session.ChatSession;
 import dev.ervinszilagyi.session.RequestResponseListener;
 import dev.langchain4j.memory.ChatMemory;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import dev.langchain4j.model.chat.listener.ChatModelListener;
-import org.jline.reader.LineReader;
-import org.jline.reader.LineReaderBuilder;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import org.slf4j.Logger;
@@ -22,7 +20,6 @@ import picocli.CommandLine;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.List;
 
 @CommandLine.Command(name = "session", description = "Start MCP session.")
@@ -39,8 +36,6 @@ public class SessionCommand implements Runnable {
     public void run() {
         ChatMemory chatMemory = MessageWindowChatMemory.withMaxMessages(100);
 
-        MarkDownPrinter markDownPrinter = new MarkDownPrinter();
-
         try {
             Terminal terminal = TerminalBuilder.builder()
                     .jansi(true)
@@ -48,17 +43,13 @@ public class SessionCommand implements Runnable {
                     .system(true)
                     .build();
 
-            LineReader reader = LineReaderBuilder.builder()
-                    .terminal(terminal)
-                    .build();
+            RequestResponseListener requestResponseListener = new RequestResponseListener(terminal);
+            LlmClient llmClient = this.setupLlmClient(chatMemory, requestResponseListener);
+            StylizedPrinter stylizedPrinter = new StylizedPrinter(terminal);
+            ChatSession chatSession = new ChatSession(llmClient, chatMemory, stylizedPrinter);
 
-            try (PrintWriter writer = terminal.writer()) {
-                RequestResponseListener requestResponseListener = new RequestResponseListener(terminal, writer);
-                LlmClient llmClient = this.setupLlmClient(chatMemory, requestResponseListener);
-                ChatSession chatSession = new ChatSession(llmClient, chatMemory, markDownPrinter);
+            chatSession.openSession(terminal);
 
-                chatSession.openSession(reader, writer);
-            }
         } catch (IOException e) {
             logger.error(e.getMessage());
             throw new RuntimeException(e);

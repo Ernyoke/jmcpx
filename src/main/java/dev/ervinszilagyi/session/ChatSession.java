@@ -1,64 +1,84 @@
 package dev.ervinszilagyi.session;
 
 import dev.ervinszilagyi.ai.LlmClient;
-import dev.ervinszilagyi.md.MarkDownPrinter;
+import dev.ervinszilagyi.md.StylizedPrinter;
 import dev.langchain4j.exception.RateLimitException;
 import dev.langchain4j.memory.ChatMemory;
-import org.jline.reader.EndOfFileException;
-import org.jline.reader.LineReader;
-import org.jline.reader.MaskingCallback;
-import org.jline.reader.UserInterruptException;
+import dev.langchain4j.model.output.TokenUsage;
+import dev.langchain4j.service.Result;
+import org.jline.reader.*;
+import org.jline.terminal.Terminal;
+import org.jline.utils.AttributedStringBuilder;
+import org.jline.utils.AttributedStyle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.PrintWriter;
 import java.time.LocalDate;
-import java.util.List;
+import java.util.EnumSet;
+import java.util.Optional;
 
 public class ChatSession {
-    private final List<String> commands = List.of(
-            "/exit",
-            "/new",
-            "/clear"
-    );
 
     private static final Logger logger = LoggerFactory.getLogger(ChatSession.class);
 
     private final LlmClient llmClient;
     private final ChatMemory chatMemory;
 
-    private final MarkDownPrinter markDownPrinter;
+    private final StylizedPrinter stylizedPrinter;
 
-    public ChatSession(LlmClient llmClient, ChatMemory chatMemory, MarkDownPrinter markDownPrinter) {
+    private EnumSet<SessionCommand> commands = EnumSet.allOf(SessionCommand.class);
+
+    public ChatSession(LlmClient llmClient, ChatMemory chatMemory, StylizedPrinter stylizedPrinter) {
         this.llmClient = llmClient;
         this.chatMemory = chatMemory;
-        this.markDownPrinter = markDownPrinter;
+        this.stylizedPrinter = stylizedPrinter;
     }
 
-    public void openSession(LineReader reader, PrintWriter writer) {
+    public void openSession(Terminal terminal) {
+        int tokensUsedInCurrentSession = 0;
+        LineReader reader = LineReaderBuilder.builder()
+                .terminal(terminal)
+                .build();
+        PrintWriter writer = terminal.writer();
         while (true) {
             try {
                 String line = reader.readLine(">> ", null, (MaskingCallback) null, null);
-                if (line.trim().isEmpty()) {
+                if (line.isBlank()) {
                     continue;
                 }
 
-                if (isCommand(line)) {
-                    switch (line) {
-                        case "/exit":
+                Optional<SessionCommand> command = toCommand(line.strip().toLowerCase());
+
+                if (command.isPresent()) {
+                    switch (command.orElseThrow()) {
+                        case SessionCommand.EXIT:
                             return;
-                        case "/clear": {
-                            chatMemory.clear();
+                        case SessionCommand.NEW: {
+                            // Clear the memory and notify the user
+                            this.chatMemory.clear();
+                            AttributedStringBuilder attributedStringBuilder = new AttributedStringBuilder();
+                            attributedStringBuilder.style(AttributedStyle.DEFAULT.foreground(AttributedStyle.GREEN))
+                                    .append("• Starting new session. Chat history was cleared!");
+                            writer.write(attributedStringBuilder.toAnsi(terminal));
+                            writer.flush();
+
+                            // Reset token usage
+                            tokensUsedInCurrentSession = 0;
                             break;
                         }
-                        default:
-                            throw new Exception("Unknown command: " + line);
+                        case SessionCommand.HELP: {
+                            break;
+                        }
                     }
                     continue;
                 }
 
-                String message = llmClient.chat(line, LocalDate.now().toString());
-                markDownPrinter.print(message, writer);
+                Result<String> response = llmClient.chat(line, LocalDate.now().toString());
+                TokenUsage tokenUsage = response.tokenUsage();
+                tokensUsedInCurrentSession += tokenUsage.totalTokenCount();
+                writer.println("Response from AI (tokens used: " + tokensUsedInCurrentSession + "):");
+                stylizedPrinter.print(response.content());
 
             } catch (UserInterruptException | EndOfFileException e) {
                 writer.println("Interrupted by user. Exiting.");
@@ -76,7 +96,7 @@ public class ChatSession {
         }
     }
 
-    private boolean isCommand(String userInput) {
-        return this.commands.contains(userInput);
+    private Optional<SessionCommand> toCommand(String commandLike) {
+        return commands.stream().filter(command -> command.isCommand(commandLike)).findFirst();
     }
 }

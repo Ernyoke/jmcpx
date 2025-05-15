@@ -7,14 +7,21 @@ import com.vladsch.flexmark.profile.pegdown.PegdownOptionsAdapter;
 import com.vladsch.flexmark.util.ast.Node;
 import com.vladsch.flexmark.util.data.DataHolder;
 import com.vladsch.flexmark.util.data.MutableDataSet;
+import org.jline.terminal.Terminal;
+import org.jline.utils.AttributedStringBuilder;
+import org.jline.utils.AttributedStyle;
 
 import java.io.PrintWriter;
 
-public class MarkDownPrinter {
+public class StylizedPrinter {
     private final Parser parser;
     private final Formatter formatter;
 
-    public MarkDownPrinter() {
+    private final Terminal terminal;
+
+    public StylizedPrinter(final Terminal terminal) {
+        this.terminal = terminal;
+
         DataHolder OPTIONS = PegdownOptionsAdapter.flexmarkOptions(
                 Extensions.ALL
         );
@@ -26,9 +33,22 @@ public class MarkDownPrinter {
         formatter = Formatter.builder(FORMAT_OPTIONS).build();
     }
 
-    public void print(String content, PrintWriter writer) {
+    public void print(String content) {
         Node document = parser.parse(content);
         String commonmark = formatter.render(document);
+
+        PrintWriter writer = terminal.writer();
         writer.println(commonmark);
+        writer.flush();
+    }
+
+    public void printError(String error) {
+        AttributedStringBuilder attributedStringBuilder = new AttributedStringBuilder();
+        attributedStringBuilder.style(AttributedStyle.DEFAULT.foreground(AttributedStyle.RED))
+                .append("Error: ").append(error).append("\n");
+
+        PrintWriter writer = terminal.writer();
+        writer.println(attributedStringBuilder);
+        writer.flush();
     }
 }
