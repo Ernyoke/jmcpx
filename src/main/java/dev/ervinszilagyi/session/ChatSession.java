@@ -27,7 +27,7 @@ public class ChatSession {
 
     private final StylizedPrinter stylizedPrinter;
 
-    private EnumSet<SessionCommand> commands = EnumSet.allOf(SessionCommand.class);
+    private final EnumSet<SessionCommand> commands = EnumSet.allOf(SessionCommand.class);
 
     public ChatSession(LlmClient llmClient, ChatMemory chatMemory, StylizedPrinter stylizedPrinter) {
         this.llmClient = llmClient;
@@ -68,6 +68,10 @@ public class ChatSession {
                             break;
                         }
                         case SessionCommand.HELP: {
+                            stylizedPrinter.printSystemMessage("Commands:");
+                            commands.forEach(
+                                    cmd -> stylizedPrinter.printSystemMessage(cmd.commandStr + ": " + cmd.helpMessage)
+                            );
                             break;
                         }
                     }
@@ -77,18 +81,19 @@ public class ChatSession {
                 Result<String> response = llmClient.chat(line, LocalDate.now().toString());
                 TokenUsage tokenUsage = response.tokenUsage();
                 tokensUsedInCurrentSession += tokenUsage.totalTokenCount();
-                writer.println("Response from AI (tokens used: " + tokensUsedInCurrentSession + "):");
-                stylizedPrinter.print(response.content());
+                stylizedPrinter.printSystemMessage("Response from AI (tokens used: " + tokensUsedInCurrentSession + "):");
+                stylizedPrinter.printMarkDown(response.content());
 
             } catch (UserInterruptException | EndOfFileException e) {
                 writer.println("Interrupted by user. Exiting.");
+                stylizedPrinter.printSystemMessage("Interrupted by user. Exiting.");
                 logger.error(e.getMessage(), e);
                 break;
             } catch (RateLimitException rateLimitException) {
-                writer.println("Rate Limit ERROR: " + rateLimitException.getMessage());
+                stylizedPrinter.printError("Rate limited by the LLM provider: " + rateLimitException.getMessage());
                 logger.error(rateLimitException.getMessage(), rateLimitException);
             } catch (Exception e) {
-                writer.println("ERROR: " + e.getMessage());
+                stylizedPrinter.printError(e.getMessage());
                 logger.error(e.getMessage(), e);
             } finally {
                 writer.flush();

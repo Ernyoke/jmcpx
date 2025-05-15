@@ -33,7 +33,7 @@ public class StylizedPrinter {
         formatter = Formatter.builder(FORMAT_OPTIONS).build();
     }
 
-    public void print(String content) {
+    public void printMarkDown(final String content) {
         Node document = parser.parse(content);
         String commonmark = formatter.render(document);
 
@@ -42,10 +42,20 @@ public class StylizedPrinter {
         writer.flush();
     }
 
-    public void printError(String error) {
+    public void printError(final String error) {
         AttributedStringBuilder attributedStringBuilder = new AttributedStringBuilder();
         attributedStringBuilder.style(AttributedStyle.DEFAULT.foreground(AttributedStyle.RED))
                 .append("Error: ").append(error).append("\n");
+
+        PrintWriter writer = terminal.writer();
+        writer.println(attributedStringBuilder);
+        writer.flush();
+    }
+
+    public void printSystemMessage(final String message) {
+        AttributedStringBuilder attributedStringBuilder = new AttributedStringBuilder();
+        attributedStringBuilder.style(AttributedStyle.DEFAULT.foreground(AttributedStyle.GREEN))
+                .append(message).append("\n");
 
         PrintWriter writer = terminal.writer();
         writer.println(attributedStringBuilder);
