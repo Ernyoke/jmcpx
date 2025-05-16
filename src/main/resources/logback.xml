@@ -12,6 +12,11 @@
         <appender-ref ref="FILE"/>
     </logger>
 
+    <!-- Configure the LangChain4j logger specifically -->
+    <logger name="dev.langchain4j" level="DEBUG" additivity="false">
+        <appender-ref ref="FILE"/>
+    </logger>
+
     <!-- Root logger configuration -->
     <root level="INFO">
         <appender-ref ref="FILE"/>

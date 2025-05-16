@@ -8,8 +8,6 @@ import dev.langchain4j.model.output.TokenUsage;
 import dev.langchain4j.service.Result;
 import org.jline.reader.*;
 import org.jline.terminal.Terminal;
-import org.jline.utils.AttributedStringBuilder;
-import org.jline.utils.AttributedStyle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,6 +39,7 @@ public class ChatSession {
                 .terminal(terminal)
                 .build();
         PrintWriter writer = terminal.writer();
+
         while (true) {
             try {
                 String line = reader.readLine(">> ", null, (MaskingCallback) null, null);
@@ -57,11 +56,7 @@ public class ChatSession {
                         case SessionCommand.NEW: {
                             // Clear the memory and notify the user
                             this.chatMemory.clear();
-                            AttributedStringBuilder attributedStringBuilder = new AttributedStringBuilder();
-                            attributedStringBuilder.style(AttributedStyle.DEFAULT.foreground(AttributedStyle.GREEN))
-                                    .append("• Starting new session. Chat history was cleared!");
-                            writer.write(attributedStringBuilder.toAnsi(terminal));
-                            writer.flush();
+                            this.stylizedPrinter.printSystemMessage("Starting new session. Chat history was cleared!");
 
                             // Reset token usage
                             tokensUsedInCurrentSession = 0;
@@ -85,7 +80,6 @@ public class ChatSession {
                 stylizedPrinter.printMarkDown(response.content());
 
             } catch (UserInterruptException | EndOfFileException e) {
-                writer.println("Interrupted by user. Exiting.");
                 stylizedPrinter.printSystemMessage("Interrupted by user. Exiting.");
                 logger.error(e.getMessage(), e);
                 break;

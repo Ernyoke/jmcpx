@@ -33,14 +33,14 @@ public class RequestResponseListener implements ChatModelListener {
         switch (lastMessage) {
             case UserMessage ignored -> {
                 AttributedStringBuilder attributedStringBuilder = new AttributedStringBuilder();
-                attributedStringBuilder.style(AttributedStyle.DEFAULT.foreground(AttributedStyle.GREEN))
+                attributedStringBuilder.style(AttributedStyle.DEFAULT.foreground(AttributedStyle.BRIGHT))
                         .append("• Contacting LLM with user request.\n");
                 writer.write(attributedStringBuilder.toAnsi(terminal));
                 writer.flush();
             }
             case ToolExecutionResultMessage toolExecutionResultMessage -> {
                 AttributedStringBuilder attributedStringBuilder = new AttributedStringBuilder();
-                attributedStringBuilder.style(AttributedStyle.DEFAULT.foreground(AttributedStyle.GREEN))
+                attributedStringBuilder.style(AttributedStyle.DEFAULT.foreground(AttributedStyle.BRIGHT))
                         .append("• Sending tool ")
                         .append("\"")
                         .append(toolExecutionResultMessage.toolName())
@@ -70,7 +70,7 @@ public class RequestResponseListener implements ChatModelListener {
         if (aiMessage.hasToolExecutionRequests()) {
             aiMessage.toolExecutionRequests().forEach(toolExecutionRequest -> {
                 AttributedStringBuilder attributedStringBuilder = new AttributedStringBuilder();
-                attributedStringBuilder.style(AttributedStyle.DEFAULT.foreground(AttributedStyle.GREEN))
+                attributedStringBuilder.style(AttributedStyle.DEFAULT.foreground(AttributedStyle.BRIGHT))
                         .append("• Calling tool ")
                         .append("\"")
                         .append(toolExecutionRequest.name())

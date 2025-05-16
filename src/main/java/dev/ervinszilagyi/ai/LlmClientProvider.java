@@ -29,14 +29,18 @@ import java.util.stream.Collectors;
 public class LlmClientProvider {
     private static final Logger logger = LoggerFactory.getLogger(LlmClientProvider.class);
 
-    public LlmClient buildLlmClient(final McpConfig mcpConfig, final LlmConfig llmConfig, ChatMemory chatMemory) {
-        return buildLlmClient(mcpConfig, llmConfig, chatMemory, List.of());
+    public LlmClient buildLlmClient(final McpConfig mcpConfig,
+                                    final LlmConfig llmConfig,
+                                    final ChatMemory chatMemory,
+                                    final boolean isLlmLoggingEnabled) {
+        return buildLlmClient(mcpConfig, llmConfig, chatMemory, List.of(), isLlmLoggingEnabled);
     }
 
     public LlmClient buildLlmClient(final McpConfig mcpConfig,
                                     final LlmConfig llmConfig,
                                     final ChatMemory chatMemory,
-                                    final List<ChatModelListener> listeners) {
+                                    final List<ChatModelListener> listeners,
+                                    final boolean isLlmLoggingEnabled) {
         logger.info("Create LlmClient");
 
         ModelConfig modelConfig = llmConfig.getDefaultConfig();
@@ -46,22 +50,22 @@ public class LlmClientProvider {
             case AnthropicConfig anthropicConfig -> model = AnthropicChatModel.builder()
                     .apiKey(anthropicConfig.apiKey())
                     .modelName(anthropicConfig.modelName())
-                    .logRequests(true)
-                    .logResponses(true)
+                    .logRequests(isLlmLoggingEnabled)
+                    .logResponses(isLlmLoggingEnabled)
                     .listeners(listeners)
                     .build();
             case OpenAiConfig openAiConfig -> model = OpenAiChatModel.builder()
                     .apiKey(openAiConfig.apiKey())
                     .modelName(openAiConfig.modelName())
-                    .logRequests(true)
-                    .logResponses(true)
+                    .logRequests(isLlmLoggingEnabled)
+                    .logResponses(isLlmLoggingEnabled)
                     .listeners(listeners)
                     .build();
             case BedrockConfig bedrockConfig -> model = BedrockChatModel.builder()
                     .modelId(bedrockConfig.modelId())
                     .region(Region.of(bedrockConfig.region()))
-                    .logRequests(true)
-                    .logResponses(true)
+                    .logRequests(isLlmLoggingEnabled)
+                    .logResponses(isLlmLoggingEnabled)
                     .listeners(listeners)
                     .build();
             default -> throw new IllegalStateException("Unexpected value: " + modelConfig);

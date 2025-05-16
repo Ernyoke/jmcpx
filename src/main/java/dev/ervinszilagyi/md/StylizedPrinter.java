@@ -48,17 +48,17 @@ public class StylizedPrinter {
                 .append("Error: ").append(error).append("\n");
 
         PrintWriter writer = terminal.writer();
-        writer.println(attributedStringBuilder);
+        writer.write(attributedStringBuilder.toAnsi(terminal));
         writer.flush();
     }
 
     public void printSystemMessage(final String message) {
         AttributedStringBuilder attributedStringBuilder = new AttributedStringBuilder();
-        attributedStringBuilder.style(AttributedStyle.DEFAULT.foreground(AttributedStyle.GREEN))
+        attributedStringBuilder.style(AttributedStyle.DEFAULT.foreground(AttributedStyle.YELLOW))
                 .append(message).append("\n");
 
         PrintWriter writer = terminal.writer();
-        writer.println(attributedStringBuilder);
+        writer.write(attributedStringBuilder.toAnsi(terminal));
         writer.flush();
     }
 }

@@ -30,6 +30,10 @@ public class SessionCommand implements Runnable {
     @CommandLine.Option(names = {"-l", "--llm"}, description = "Location of the llm.toml file.", defaultValue = "llm.toml")
     private File llmConfigLocation;
 
+    @CommandLine.Option(names = {"-d", "--debug"}, description = "Run application is debug mode with. This will enable " +
+            "enhanced logging for each request and response to LLMs.")
+    private boolean debugMode;
+
     private static final Logger logger = LoggerFactory.getLogger(SessionCommand.class);
 
     @Override
@@ -44,7 +48,7 @@ public class SessionCommand implements Runnable {
                     .build();
 
             RequestResponseListener requestResponseListener = new RequestResponseListener(terminal);
-            LlmClient llmClient = this.setupLlmClient(chatMemory, requestResponseListener);
+            LlmClient llmClient = this.setupLlmClient(chatMemory, requestResponseListener, debugMode);
             StylizedPrinter stylizedPrinter = new StylizedPrinter(terminal);
             ChatSession chatSession = new ChatSession(llmClient, chatMemory, stylizedPrinter);
 
@@ -56,7 +60,9 @@ public class SessionCommand implements Runnable {
         }
     }
 
-    private LlmClient setupLlmClient(final ChatMemory chatMemory, final ChatModelListener chatModelListener) throws IOException {
+    private LlmClient setupLlmClient(final ChatMemory chatMemory,
+                                     final ChatModelListener chatModelListener,
+                                     final boolean isDebugModeEnabled) throws IOException {
         McpConfig mcpConfig = McpConfigProvider.loadConfig(mcpLocation);
         LlmConfig llmConfig = LlmClientConfigProvider.loadConfig(llmConfigLocation);
 
@@ -65,6 +71,7 @@ public class SessionCommand implements Runnable {
         return llmClientProvider.buildLlmClient(mcpConfig,
                 llmConfig,
                 chatMemory,
-                List.of(chatModelListener));
+                List.of(chatModelListener),
+                isDebugModeEnabled);
     }
 }
