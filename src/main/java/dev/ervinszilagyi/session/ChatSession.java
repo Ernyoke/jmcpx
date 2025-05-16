@@ -65,7 +65,7 @@ public class ChatSession {
                         case SessionCommand.HELP: {
                             stylizedPrinter.printSystemMessage("Commands:");
                             commands.forEach(
-                                    cmd -> stylizedPrinter.printSystemMessage(cmd.commandStr + ": " + cmd.helpMessage)
+                                    cmd -> stylizedPrinter.printSystemMessage(cmd.getDocumentation())
                             );
                             break;
                         }
