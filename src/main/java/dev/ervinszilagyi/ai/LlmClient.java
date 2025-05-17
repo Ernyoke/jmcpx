@@ -10,7 +10,7 @@ public interface LlmClient {
             """
                     You are a general-purpose AI agent.l
                     
-                    The current date is:  **{currentDateTime}**.
+                    The current date is: {{currentDateTime}}.
                     
                     # Tools
                     

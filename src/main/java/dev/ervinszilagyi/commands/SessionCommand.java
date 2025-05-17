@@ -2,6 +2,8 @@ package dev.ervinszilagyi.commands;
 
 import dev.ervinszilagyi.ai.LlmClient;
 import dev.ervinszilagyi.ai.LlmClientProvider;
+import dev.ervinszilagyi.ai.SquashedChatMemory;
+import dev.ervinszilagyi.ai.SquashedChatMemoryStore;
 import dev.ervinszilagyi.config.llm.LlmClientConfigProvider;
 import dev.ervinszilagyi.config.llm.LlmConfig;
 import dev.ervinszilagyi.config.mcp.McpConfig;
@@ -10,7 +12,6 @@ import dev.ervinszilagyi.md.StylizedPrinter;
 import dev.ervinszilagyi.session.ChatSession;
 import dev.ervinszilagyi.session.RequestResponseListener;
 import dev.langchain4j.memory.ChatMemory;
-import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import dev.langchain4j.model.chat.listener.ChatModelListener;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
@@ -38,7 +39,9 @@ public class SessionCommand implements Runnable {
 
     @Override
     public void run() {
-        ChatMemory chatMemory = MessageWindowChatMemory.withMaxMessages(100);
+        String storeId = "Squashed Chat Memory";
+        SquashedChatMemoryStore squashedChatMemoryStore = new SquashedChatMemoryStore(storeId);
+        SquashedChatMemory chatMemory = new SquashedChatMemory(storeId, squashedChatMemoryStore);
 
         try {
             Terminal terminal = TerminalBuilder.builder()
