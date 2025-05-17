@@ -3,6 +3,7 @@ package dev.ervinszilagyi.commands;
 import dev.ervinszilagyi.ai.LlmClient;
 import dev.ervinszilagyi.ai.LlmClientProvider;
 import dev.ervinszilagyi.ai.SquashedChatMemory;
+import dev.ervinszilagyi.ai.SquashedChatMemoryStore;
 import dev.ervinszilagyi.config.llm.LlmClientConfigProvider;
 import dev.ervinszilagyi.config.llm.LlmConfig;
 import dev.ervinszilagyi.config.mcp.McpConfig;
@@ -38,7 +39,9 @@ public class SessionCommand implements Runnable {
 
     @Override
     public void run() {
-        SquashedChatMemory chatMemory = new SquashedChatMemory("Squashed Chat Memory");
+        String storeId = "Squashed Chat Memory";
+        SquashedChatMemoryStore squashedChatMemoryStore = new SquashedChatMemoryStore(storeId);
+        SquashedChatMemory chatMemory = new SquashedChatMemory(storeId, squashedChatMemoryStore);
 
         try {
             Terminal terminal = TerminalBuilder.builder()

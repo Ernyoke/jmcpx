@@ -9,20 +9,19 @@ import dev.langchain4j.store.memory.chat.ChatMemoryStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
 public class SquashedChatMemory implements ChatMemory {
-    private static final Logger log = LoggerFactory.getLogger(SquashedChatMemory.class);
+    private static final Logger logger = LoggerFactory.getLogger(SquashedChatMemory.class);
 
     private final Object id;
     private final ChatMemoryStore store;
 
-    public SquashedChatMemory(Object id) {
+    public SquashedChatMemory(Object id, SquashedChatMemoryStore store) {
         this.id = id;
-        this.store = new SquashedChatMemoryStore(id);
+        this.store = store;
     }
 
     @Override
@@ -59,19 +58,16 @@ public class SquashedChatMemory implements ChatMemory {
 
     public void squashToolExecutions() {
         List<ChatMessage> messages = store.getMessages(id);
-        List<ChatMessage> squashedMessages = new ArrayList<>();
-        for (ChatMessage message : messages) {
-            if (message instanceof AiMessage aiMessage) {
-                if (aiMessage.hasToolExecutionRequests()) {
-                    continue;
-                }
-            }
-            if (message instanceof ToolExecutionResultMessage) {
-                continue;
-            }
-            squashedMessages.add(message);
+        List<ChatMessage> squashedMessages = messages.stream()
+                .filter(message -> switch (message) {
+                    case AiMessage aiMessage -> !aiMessage.hasToolExecutionRequests();
+                    case ToolExecutionResultMessage ignored -> false;
+                    default -> true;
+                }).toList();
+        if (messages.size() != squashedMessages.size()) {
+            logger.info("Chat memory squashed. Number of messages evicted: {}", messages.size() - squashedMessages.size());
+            this.store.updateMessages(id, squashedMessages);
         }
-        this.store.updateMessages(id, squashedMessages);
     }
 
     private static Optional<SystemMessage> findSystemMessage(List<ChatMessage> messages) {
