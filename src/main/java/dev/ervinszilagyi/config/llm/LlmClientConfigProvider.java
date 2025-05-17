@@ -50,6 +50,23 @@ public class LlmClientConfigProvider {
             openAiConfig = new OpenAiConfig(modelName, apiKey, isDefault);
         }
 
+        TomlTable googleSection = result.getTableOrEmpty("gemini");
+        GoogleConfig googleConfig = null;
+        if (!googleSection.isEmpty()) {
+            logger.info("Loading Gemini config.");
+            String modelName = googleSection.getString("modelName");
+            String apiKey = googleSection.getString("apiKey");
+            boolean isDefault = Boolean.TRUE.equals(googleSection.getBoolean("default"));
+
+            if (isDefault) {
+                logger.info("Google Gemini model {} loaded as default.", modelName);
+            } else {
+                logger.info("Google Gemini model {} loaded.", modelName);
+            }
+
+            googleConfig = new GoogleConfig(modelName, apiKey, isDefault);
+        }
+
         TomlTable bedrockSection = result.getTableOrEmpty("bedrock");
         BedrockConfig bedrockConfig = null;
         if (!bedrockSection.isEmpty()) {
@@ -67,6 +84,6 @@ public class LlmClientConfigProvider {
             bedrockConfig = new BedrockConfig(modelId, modelRegion, isDefault);
         }
 
-        return new LlmConfig("name", anthropicConfig, openAiConfig, bedrockConfig);
+        return new LlmConfig("name", anthropicConfig, openAiConfig, googleConfig, bedrockConfig);
     }
 }

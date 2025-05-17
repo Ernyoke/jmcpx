@@ -14,6 +14,7 @@ import dev.langchain4j.model.anthropic.AnthropicChatModel;
 import dev.langchain4j.model.bedrock.BedrockChatModel;
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.chat.listener.ChatModelListener;
+import dev.langchain4j.model.googleai.GoogleAiGeminiChatModel;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 import dev.langchain4j.service.AiServices;
 import dev.langchain4j.service.tool.ToolProvider;
@@ -59,6 +60,12 @@ public class LlmClientProvider {
                     .modelName(openAiConfig.modelName())
                     .logRequests(isLlmLoggingEnabled)
                     .logResponses(isLlmLoggingEnabled)
+                    .listeners(listeners)
+                    .build();
+            case GoogleConfig googleConfig -> model = GoogleAiGeminiChatModel.builder()
+                    .modelName(googleConfig.modelName())
+                    .apiKey(googleConfig.apiKey())
+                    .logRequestsAndResponses(isLlmLoggingEnabled)
                     .listeners(listeners)
                     .build();
             case BedrockConfig bedrockConfig -> model = BedrockChatModel.builder()
