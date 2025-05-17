@@ -1,9 +1,9 @@
 package dev.ervinszilagyi.session;
 
 import dev.ervinszilagyi.ai.LlmClient;
+import dev.ervinszilagyi.ai.SquashedChatMemory;
 import dev.ervinszilagyi.md.StylizedPrinter;
 import dev.langchain4j.exception.RateLimitException;
-import dev.langchain4j.memory.ChatMemory;
 import dev.langchain4j.model.output.TokenUsage;
 import dev.langchain4j.service.Result;
 import org.jline.reader.*;
@@ -21,13 +21,13 @@ public class ChatSession {
     private static final Logger logger = LoggerFactory.getLogger(ChatSession.class);
 
     private final LlmClient llmClient;
-    private final ChatMemory chatMemory;
+    private final SquashedChatMemory chatMemory;
 
     private final StylizedPrinter stylizedPrinter;
 
     private final EnumSet<SessionCommand> commands = EnumSet.allOf(SessionCommand.class);
 
-    public ChatSession(LlmClient llmClient, ChatMemory chatMemory, StylizedPrinter stylizedPrinter) {
+    public ChatSession(LlmClient llmClient, SquashedChatMemory chatMemory, StylizedPrinter stylizedPrinter) {
         this.llmClient = llmClient;
         this.chatMemory = chatMemory;
         this.stylizedPrinter = stylizedPrinter;
@@ -78,6 +78,8 @@ public class ChatSession {
                 tokensUsedInCurrentSession += tokenUsage.totalTokenCount();
                 stylizedPrinter.printSystemMessage("Response from AI (tokens used: " + tokensUsedInCurrentSession + "):");
                 stylizedPrinter.printMarkDown(response.content());
+
+                this.chatMemory.squashToolExecutions();
 
             } catch (UserInterruptException | EndOfFileException e) {
                 stylizedPrinter.printSystemMessage("Interrupted by user. Exiting.");
