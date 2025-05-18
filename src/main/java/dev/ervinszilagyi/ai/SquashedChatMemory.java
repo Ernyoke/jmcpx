@@ -19,7 +19,7 @@ public class SquashedChatMemory implements ChatMemory {
     private final Object id;
     private final ChatMemoryStore store;
 
-    public SquashedChatMemory(Object id, SquashedChatMemoryStore store) {
+    public SquashedChatMemory(final Object id, final SquashedChatMemoryStore store) {
         this.id = id;
         this.store = store;
     }

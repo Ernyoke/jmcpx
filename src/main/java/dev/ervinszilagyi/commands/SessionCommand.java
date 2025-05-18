@@ -1,9 +1,6 @@
 package dev.ervinszilagyi.commands;
 
-import dev.ervinszilagyi.ai.LlmClient;
-import dev.ervinszilagyi.ai.LlmClientProvider;
-import dev.ervinszilagyi.ai.SquashedChatMemory;
-import dev.ervinszilagyi.ai.SquashedChatMemoryStore;
+import dev.ervinszilagyi.ai.*;
 import dev.ervinszilagyi.config.llm.LlmClientConfigProvider;
 import dev.ervinszilagyi.config.llm.LlmConfig;
 import dev.ervinszilagyi.config.mcp.McpConfig;
@@ -11,8 +8,6 @@ import dev.ervinszilagyi.config.mcp.McpConfigProvider;
 import dev.ervinszilagyi.md.StylizedPrinter;
 import dev.ervinszilagyi.session.ChatSession;
 import dev.ervinszilagyi.session.RequestResponseListener;
-import dev.langchain4j.memory.ChatMemory;
-import dev.langchain4j.model.chat.listener.ChatModelListener;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import org.slf4j.Logger;
@@ -50,10 +45,28 @@ public class SessionCommand implements Runnable {
                     .system(true)
                     .build();
 
+            McpConfig mcpConfig = McpConfigProvider.loadConfig(mcpLocation);
+            LlmConfig llmConfig = LlmClientConfigProvider.loadConfig(llmConfigLocation);
+
             RequestResponseListener requestResponseListener = new RequestResponseListener(terminal);
-            LlmClient llmClient = this.setupLlmClient(chatMemory, requestResponseListener, debugMode);
+            ChatLanguageModelProvider chatLanguageModelProvider = new ChatLanguageModelProvider();
+
+            ChatLanguageModelWithInfo chatLanguageModelWithInfo = chatLanguageModelProvider.buildChatLanguageModel(
+                    llmConfig.getDefaultConfig(),
+                    debugMode,
+                    List.of(requestResponseListener)
+            );
+
+            LlmClientProvider llmClientProvider = new LlmClientProvider();
+            LlmClient llmClient = llmClientProvider.buildLlmClient(mcpConfig,
+                    chatLanguageModelWithInfo.chatLanguageModel(),
+                    chatMemory);
+
             StylizedPrinter stylizedPrinter = new StylizedPrinter(terminal);
-            ChatSession chatSession = new ChatSession(llmClient, chatMemory, stylizedPrinter);
+            ChatSession chatSession = new ChatSession(llmClient,
+                    chatLanguageModelWithInfo.modelInfo(),
+                    chatMemory,
+                    stylizedPrinter);
 
             chatSession.openSession(terminal);
 
@@ -61,20 +74,5 @@ public class SessionCommand implements Runnable {
             logger.error(e.getMessage());
             throw new RuntimeException(e);
         }
-    }
-
-    private LlmClient setupLlmClient(final ChatMemory chatMemory,
-                                     final ChatModelListener chatModelListener,
-                                     final boolean isDebugModeEnabled) throws IOException {
-        McpConfig mcpConfig = McpConfigProvider.loadConfig(mcpLocation);
-        LlmConfig llmConfig = LlmClientConfigProvider.loadConfig(llmConfigLocation);
-
-        LlmClientProvider llmClientProvider = new LlmClientProvider();
-
-        return llmClientProvider.buildLlmClient(mcpConfig,
-                llmConfig,
-                chatMemory,
-                List.of(chatModelListener),
-                isDebugModeEnabled);
     }
 }

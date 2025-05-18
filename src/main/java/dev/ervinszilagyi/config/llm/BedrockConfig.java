@@ -5,4 +5,9 @@ public record BedrockConfig(String modelId, String region, boolean isDefault) im
     public boolean isDefault() {
         return isDefault;
     }
+
+    @Override
+    public String getModelName() {
+        return modelId;
+    }
 }

@@ -1,0 +1,79 @@
+package dev.ervinszilagyi.ai;
+
+import dev.ervinszilagyi.config.llm.*;
+import dev.langchain4j.model.ModelProvider;
+import dev.langchain4j.model.anthropic.AnthropicChatModel;
+import dev.langchain4j.model.bedrock.BedrockChatModel;
+import dev.langchain4j.model.chat.ChatLanguageModel;
+import dev.langchain4j.model.chat.listener.ChatModelListener;
+import dev.langchain4j.model.googleai.GoogleAiGeminiChatModel;
+import dev.langchain4j.model.openai.OpenAiChatModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import software.amazon.awssdk.regions.Region;
+
+import java.util.List;
+
+public class ChatLanguageModelProvider {
+    private static final Logger logger = LoggerFactory.getLogger(ChatLanguageModelProvider.class);
+
+    /**
+     * Builds a ChatLanguageModel based on the model configuration.
+     * Supported models are Anthropic (Claude) models, OpenAI models, Google (Gemini) models and AWS Bedrock models.
+     *
+     * @param modelConfig         configuration for the chat language model to be created
+     * @param isLlmLoggingEnabled if true will enable request and response logging for the model
+     * @param listeners           list ChatLanguage model listener that can be used to catch requests and responses to the model
+     * @return ChatLanguageModel
+     */
+    public ChatLanguageModelWithInfo buildChatLanguageModel(final ModelConfig modelConfig,
+                                                            final boolean isLlmLoggingEnabled,
+                                                            final List<ChatModelListener> listeners) {
+
+        ChatLanguageModel chatLanguageModel = switch (modelConfig) {
+            case AnthropicConfig anthropicConfig -> AnthropicChatModel.builder()
+                    .apiKey(anthropicConfig.apiKey())
+                    .modelName(anthropicConfig.modelName())
+                    .logRequests(isLlmLoggingEnabled)
+                    .logResponses(isLlmLoggingEnabled)
+                    .listeners(listeners)
+                    .build();
+            case OpenAiConfig openAiConfig -> OpenAiChatModel.builder()
+                    .apiKey(openAiConfig.apiKey())
+                    .modelName(openAiConfig.modelName())
+                    .logRequests(isLlmLoggingEnabled)
+                    .logResponses(isLlmLoggingEnabled)
+                    .listeners(listeners)
+                    .build();
+            case GoogleConfig googleConfig -> GoogleAiGeminiChatModel.builder()
+                    .modelName(googleConfig.modelName())
+                    .apiKey(googleConfig.apiKey())
+                    .logRequestsAndResponses(isLlmLoggingEnabled)
+                    .listeners(listeners)
+                    .build();
+            case BedrockConfig bedrockConfig -> BedrockChatModel.builder()
+                    .modelId(bedrockConfig.modelId())
+                    .region(Region.of(bedrockConfig.region()))
+                    .logRequests(isLlmLoggingEnabled)
+                    .logResponses(isLlmLoggingEnabled)
+                    .listeners(listeners)
+                    .build();
+            default -> throw new IllegalStateException("Unexpected value: " + modelConfig);
+        };
+
+        return new ChatLanguageModelWithInfo(chatLanguageModel,
+                buildModelInfo(chatLanguageModel.provider(), modelConfig));
+    }
+
+    private ModelInfo buildModelInfo(ModelProvider modelProvider, ModelConfig modelConfig) {
+        String providerName = switch (modelProvider) {
+            case ANTHROPIC -> "Anthropic";
+            case OPEN_AI -> "OpenAI";
+            case AMAZON_BEDROCK -> "Amazon Bedrock";
+            case GOOGLE_AI_GEMINI -> "Google Ai Gemini";
+            default -> throw new IllegalStateException("Unexpected value: " + modelConfig);
+        };
+
+        return new ModelInfo(providerName, modelConfig.getModelName());
+    }
+}

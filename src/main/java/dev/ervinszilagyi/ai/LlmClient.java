@@ -1,5 +1,6 @@
 package dev.ervinszilagyi.ai;
 
+import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.service.Result;
 import dev.langchain4j.service.SystemMessage;
 import dev.langchain4j.service.UserMessage;

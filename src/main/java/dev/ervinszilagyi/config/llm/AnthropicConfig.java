@@ -5,4 +5,9 @@ public record AnthropicConfig(String modelName, String apiKey, boolean isDefault
     public boolean isDefault() {
         return isDefault;
     }
+
+    @Override
+    public String getModelName() {
+        return modelName;
+    }
 }
