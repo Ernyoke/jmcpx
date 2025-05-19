@@ -13,13 +13,19 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
+
+/**
+ /**
+ * Represents a store for the {@link ChatMemory} state with the addition that the chain of tool request/response
+ * messages can be squashed.
+ */
 public class SquashedChatMemory implements ChatMemory {
     private static final Logger logger = LoggerFactory.getLogger(SquashedChatMemory.class);
 
     private final Object id;
     private final ChatMemoryStore store;
 
-    public SquashedChatMemory(Object id, SquashedChatMemoryStore store) {
+    public SquashedChatMemory(final Object id, final SquashedChatMemoryStore store) {
         this.id = id;
         this.store = store;
     }
@@ -56,6 +62,14 @@ public class SquashedChatMemory implements ChatMemory {
         this.store.deleteMessages(this.id);
     }
 
+    /**
+     * Squash tool execution messages by removing AI messages with tool execution requests and ToolExecutionResultMessage
+     * messages. After every ToolExecutionResultMessage there is an AIMessage that will either request other tool call
+     * or it will summarize the result. We can keep only the final AIMessage that represents the final answer of the LLM.
+     *
+     * Warning: this method should be called after a chain of Tool calls has ended and the LLM formalized a final
+     * response for the user query.
+     */
     public void squashToolExecutions() {
         List<ChatMessage> messages = store.getMessages(id);
         List<ChatMessage> squashedMessages = messages.stream()
