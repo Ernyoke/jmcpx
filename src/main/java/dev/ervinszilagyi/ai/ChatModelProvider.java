@@ -4,7 +4,7 @@ import dev.ervinszilagyi.config.llm.*;
 import dev.langchain4j.model.ModelProvider;
 import dev.langchain4j.model.anthropic.AnthropicChatModel;
 import dev.langchain4j.model.bedrock.BedrockChatModel;
-import dev.langchain4j.model.chat.ChatLanguageModel;
+import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.chat.listener.ChatModelListener;
 import dev.langchain4j.model.googleai.GoogleAiGeminiChatModel;
 import dev.langchain4j.model.openai.OpenAiChatModel;
@@ -14,22 +14,22 @@ import software.amazon.awssdk.regions.Region;
 
 import java.util.List;
 
-public class ChatLanguageModelProvider {
-    private static final Logger logger = LoggerFactory.getLogger(ChatLanguageModelProvider.class);
+public class ChatModelProvider {
+    private static final Logger logger = LoggerFactory.getLogger(ChatModelProvider.class);
 
     /**
-     * Builds a ChatLanguageModel based on the model configuration.
+     * Builds a {@link ChatModelWithInfo} instance based on the model configuration.
      * Supported models are Anthropic (Claude) models, OpenAI models, Google (Gemini) models and AWS Bedrock models.
      *
      * @param modelConfig         configuration for the chat language model to be created
      * @param isLlmLoggingEnabled if true will enable request and response logging for the model
-     * @param listeners           list ChatLanguage model listener that can be used to catch requests and responses to the model
-     * @return {@link ChatLanguageModel}
+     * @param listeners           list of {@ChatModelListener} listener that can be used to catch requests and responses to the model
+     * @return {@link ChatModel}
      */
-    public ChatLanguageModelWithInfo buildChatLanguageModel(final ModelConfig modelConfig,
-                                                            final boolean isLlmLoggingEnabled,
-                                                            final List<ChatModelListener> listeners) {
-        ChatLanguageModel chatLanguageModel = switch (modelConfig) {
+    public ChatModelWithInfo buildChatModel(final ModelConfig modelConfig,
+                                            final boolean isLlmLoggingEnabled,
+                                            final List<ChatModelListener> listeners) {
+        ChatModel chatModel = switch (modelConfig) {
             case AnthropicConfig anthropicConfig -> AnthropicChatModel.builder()
                     .apiKey(anthropicConfig.apiKey())
                     .modelName(anthropicConfig.modelName())
@@ -60,14 +60,15 @@ public class ChatLanguageModelProvider {
             default -> throw new IllegalStateException("Unexpected value: " + modelConfig);
         };
 
-        return new ChatLanguageModelWithInfo(chatLanguageModel,
-                buildModelInfo(chatLanguageModel.provider(), modelConfig));
+        return new ChatModelWithInfo(chatModel,
+                buildModelInfo(chatModel.provider(), modelConfig));
     }
 
     /**
      * Returns the {@link ModelInfo} storing a nice name of the provider and the model name/ID.
+     *
      * @param modelProvider Enum representing the list of available providers
-     * @param modelConfig model config object from which the name/ID of the model is retrieved
+     * @param modelConfig   model config object from which the name/ID of the model is retrieved
      * @return {@link ModelInfo}
      */
     private ModelInfo buildModelInfo(ModelProvider modelProvider, ModelConfig modelConfig) {

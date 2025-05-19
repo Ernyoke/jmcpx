@@ -50,9 +50,9 @@ public class SessionCommand implements Runnable {
             LlmConfig llmConfig = LlmClientConfigProvider.loadConfig(llmConfigLocation);
 
             RequestResponseListener requestResponseListener = new RequestResponseListener(terminal);
-            ChatLanguageModelProvider chatLanguageModelProvider = new ChatLanguageModelProvider();
+            ChatModelProvider chatModelProvider = new ChatModelProvider();
 
-            ChatLanguageModelWithInfo chatLanguageModelWithInfo = chatLanguageModelProvider.buildChatLanguageModel(
+            ChatModelWithInfo chatModelWithInfo = chatModelProvider.buildChatModel(
                     llmConfig.getDefaultConfig(),
                     debugMode,
                     List.of(requestResponseListener)
@@ -64,13 +64,13 @@ public class SessionCommand implements Runnable {
 
             LlmClientProvider llmClientProvider = new LlmClientProvider();
             LlmClient llmClient = llmClientProvider.buildLlmClient(mcpConfig,
-                    chatLanguageModelWithInfo.chatLanguageModel(),
+                    chatModelWithInfo.chatModel(),
                     chatMemory,
                     mcpLogMessageListener,
                     debugMode);
 
             ChatSession chatSession = new ChatSession(llmClient,
-                    chatLanguageModelWithInfo.modelInfo(),
+                    chatModelWithInfo.modelInfo(),
                     chatMemory,
                     stylizedPrinter);
 
