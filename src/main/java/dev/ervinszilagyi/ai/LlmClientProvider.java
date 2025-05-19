@@ -20,9 +20,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Build a LLM Client based on the configuration provided.
+ */
 public class LlmClientProvider {
     private static final Logger logger = LoggerFactory.getLogger(LlmClientProvider.class);
 
+    /**
+     * Build an {@link LlmClient} based on the configuration provided.
+     * @param mcpConfig MCP configuration details
+     * @param chatLanguageModel {@link ChatLanguageModel} instance representing the low level LLM client
+     * @param chatMemory Chat memory for the LLM client
+     * @return {@link LlmClient}
+     */
     public LlmClient buildLlmClient(final McpConfig mcpConfig,
                                     final ChatLanguageModel chatLanguageModel,
                                     final ChatMemory chatMemory) {
@@ -40,6 +50,11 @@ public class LlmClientProvider {
                 .build();
     }
 
+    /**
+     * Build the {@link McpClient} used by the {@link LlmClient} to call MCP tools
+     * @param mcpConfig MCP configuration details
+     * @return MCP Client
+     */
     public Map<String, McpClient> buildMcpClientList(final McpConfig mcpConfig) {
         record McpClientWithName(String name, McpClient mcpClient) {
         }

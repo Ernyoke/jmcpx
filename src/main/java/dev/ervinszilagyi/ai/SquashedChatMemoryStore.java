@@ -6,6 +6,9 @@ import dev.langchain4j.store.memory.chat.ChatMemoryStore;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * In memory store of {@link ChatMessage} messages.
+ */
 public class SquashedChatMemoryStore implements ChatMemoryStore {
     private List<ChatMessage> messages;
     private final Object memoryId;

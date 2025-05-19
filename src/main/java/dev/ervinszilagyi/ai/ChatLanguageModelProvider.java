@@ -24,12 +24,11 @@ public class ChatLanguageModelProvider {
      * @param modelConfig         configuration for the chat language model to be created
      * @param isLlmLoggingEnabled if true will enable request and response logging for the model
      * @param listeners           list ChatLanguage model listener that can be used to catch requests and responses to the model
-     * @return ChatLanguageModel
+     * @return {@link ChatLanguageModel}
      */
     public ChatLanguageModelWithInfo buildChatLanguageModel(final ModelConfig modelConfig,
                                                             final boolean isLlmLoggingEnabled,
                                                             final List<ChatModelListener> listeners) {
-
         ChatLanguageModel chatLanguageModel = switch (modelConfig) {
             case AnthropicConfig anthropicConfig -> AnthropicChatModel.builder()
                     .apiKey(anthropicConfig.apiKey())
@@ -65,6 +64,12 @@ public class ChatLanguageModelProvider {
                 buildModelInfo(chatLanguageModel.provider(), modelConfig));
     }
 
+    /**
+     * Returns the {@link ModelInfo} storing a nice name of the provider and the model name/ID.
+     * @param modelProvider Enum representing the list of available providers
+     * @param modelConfig model config object from which the name/ID of the model is retrieved
+     * @return {@link ModelInfo}
+     */
     private ModelInfo buildModelInfo(ModelProvider modelProvider, ModelConfig modelConfig) {
         String providerName = switch (modelProvider) {
             case ANTHROPIC -> "Anthropic";

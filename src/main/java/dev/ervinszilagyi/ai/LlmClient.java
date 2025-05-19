@@ -1,11 +1,13 @@
 package dev.ervinszilagyi.ai;
 
-import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.service.Result;
 import dev.langchain4j.service.SystemMessage;
 import dev.langchain4j.service.UserMessage;
 import dev.langchain4j.service.V;
 
+/**
+ * High level LLM client that can be used for chatting and tool calls.
+ */
 public interface LlmClient {
     @SystemMessage(
             """
