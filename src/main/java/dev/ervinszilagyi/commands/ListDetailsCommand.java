@@ -6,9 +6,7 @@ import dev.ervinszilagyi.config.mcp.McpConfigProvider;
 import dev.ervinszilagyi.mcpserver.McpLogMessageListener;
 import dev.ervinszilagyi.md.StylizedPrinter;
 import dev.langchain4j.agent.tool.ToolSpecification;
-import dev.langchain4j.mcp.client.McpClient;
-import dev.langchain4j.mcp.client.McpResource;
-import dev.langchain4j.mcp.client.McpResourceTemplate;
+import dev.langchain4j.mcp.client.*;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import org.slf4j.Logger;
@@ -44,17 +42,51 @@ public class ListDetailsCommand implements Runnable {
             Map<String, McpClient> mcpClients = this.setupMcpClientList(messageListener);
 
             for (Map.Entry<String, McpClient> entry : mcpClients.entrySet()) {
-                System.out.println(entry.getKey());
-                System.out.println(" • Tools:");
-                for (ToolSpecification tool : entry.getValue().listTools()) {
-                    System.out.println("  - " + tool.name() + ": " + tool.description());
+                try {
+                    StringBuilder toolsPart = new StringBuilder();
+                    toolsPart.append(entry.getKey()).append("\n");
+                    toolsPart.append(" • Tools:").append("\n");
+                    for (ToolSpecification tool : entry.getValue().listTools()) {
+                        toolsPart.append("  - ")
+                                .append(tool.name()).append(": ")
+                                .append(tool.description()).append("\n");
+                    }
+                    stylizedPrinter.printInfoMessage(toolsPart.toString());
+                } catch (McpException e) {
+                    stylizedPrinter.printSystemMessage("  Tools not supported. System error: " + e.getMessage() + "\n");
+                    logger.error(e.getMessage(), e);
                 }
-                System.out.println(" • Resources/Resource Templates:");
-                for (McpResource resource : entry.getValue().listResources()) {
-                    System.out.println("  - " + resource.name() + ": " + resource.description() + " URI: " + resource.uri());
+
+                try {
+                    StringBuilder resourcesPart = new StringBuilder();
+                    resourcesPart.append(" • Resources/Resource Templates:").append("\n");
+                    for (McpResource resource : entry.getValue().listResources()) {
+                        resourcesPart.append("  - ").append(resource.name()).append(": ")
+                                .append(resource.description())
+                                .append(" URI: ").append(resource.uri())
+                                .append("\n");
+                    }
+                    for (McpResourceTemplate resourceTemplate : entry.getValue().listResourceTemplates()) {
+                        resourcesPart.append("  - ").append(resourceTemplate.name()).append(": ").append(resourceTemplate.uriTemplate())
+                                .append("\n");
+                    }
+                    stylizedPrinter.printInfoMessage(resourcesPart.toString());
+                } catch (McpException e) {
+                    stylizedPrinter.printSystemMessage("  Resources not supported. System error: " + e.getMessage() + "\n");
+                    logger.error(e.getMessage(), e);
                 }
-                for (McpResourceTemplate resourceTemplate : entry.getValue().listResourceTemplates()) {
-                    System.out.println("  - " + resourceTemplate.name() + ": " + resourceTemplate.uriTemplate());
+
+                try {
+                    StringBuilder promptsPart = new StringBuilder();
+                    promptsPart.append(" • Prompts:").append("\n");
+                    for (McpPrompt prompt : entry.getValue().listPrompts()) {
+                        promptsPart.append("    - ").append(prompt.name()).append(":").append("\n");
+                        promptsPart.append("    - ").append(prompt.description()).append(":").append("\n");
+                    }
+                    stylizedPrinter.printInfoMessage(promptsPart.toString());
+                } catch (McpException e) {
+                    stylizedPrinter.printSystemMessage("  Prompts not supported. System error: " + e.getMessage() + "\n");
+                    logger.error(e.getMessage(), e);
                 }
             }
         } catch (IOException e) {

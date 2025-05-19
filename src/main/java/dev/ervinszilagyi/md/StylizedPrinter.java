@@ -61,4 +61,14 @@ public class StylizedPrinter {
         writer.write(attributedStringBuilder.toAnsi(terminal));
         writer.flush();
     }
+
+    public void printInfoMessage(final String message) {
+        AttributedStringBuilder attributedStringBuilder = new AttributedStringBuilder();
+        attributedStringBuilder.style(AttributedStyle.DEFAULT.foreground(AttributedStyle.WHITE))
+                .append(message).append("\n");
+
+        PrintWriter writer = terminal.writer();
+        writer.write(attributedStringBuilder.toAnsi(terminal));
+        writer.flush();
+    }
 }
