@@ -3,10 +3,14 @@ package dev.ervinszilagyi.commands;
 import dev.ervinszilagyi.ai.LlmClientProvider;
 import dev.ervinszilagyi.config.mcp.McpConfig;
 import dev.ervinszilagyi.config.mcp.McpConfigProvider;
+import dev.ervinszilagyi.mcpserver.McpLogMessageListener;
+import dev.ervinszilagyi.md.StylizedPrinter;
 import dev.langchain4j.agent.tool.ToolSpecification;
 import dev.langchain4j.mcp.client.McpClient;
 import dev.langchain4j.mcp.client.McpResource;
 import dev.langchain4j.mcp.client.McpResourceTemplate;
+import org.jline.terminal.Terminal;
+import org.jline.terminal.TerminalBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
@@ -28,7 +32,17 @@ public class ListDetailsCommand implements Runnable {
     @Override
     public void run() {
         try {
-            Map<String, McpClient> mcpClients = this.setupMcpClientList();
+            Terminal terminal = TerminalBuilder.builder()
+                    .jansi(true)
+                    .jna(true)
+                    .system(true)
+                    .build();
+
+            StylizedPrinter stylizedPrinter = new StylizedPrinter(terminal);
+            McpLogMessageListener messageListener = new McpLogMessageListener(stylizedPrinter);
+
+            Map<String, McpClient> mcpClients = this.setupMcpClientList(messageListener);
+
             for (Map.Entry<String, McpClient> entry : mcpClients.entrySet()) {
                 System.out.println(entry.getKey());
                 System.out.println(" • Tools:");
@@ -48,11 +62,11 @@ public class ListDetailsCommand implements Runnable {
         }
     }
 
-    private Map<String, McpClient> setupMcpClientList() throws IOException {
+    private Map<String, McpClient> setupMcpClientList(McpLogMessageListener mcpLogMessageListener) throws IOException {
         McpConfig mcpConfig = McpConfigProvider.loadConfig(mcpLocation);
 
         LlmClientProvider llmClientProvider = new LlmClientProvider();
 
-        return llmClientProvider.buildMcpClientList(mcpConfig);
+        return llmClientProvider.buildMcpClientList(mcpConfig, mcpLogMessageListener, true);
     }
 }

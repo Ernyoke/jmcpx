@@ -5,6 +5,7 @@ import dev.ervinszilagyi.config.llm.LlmClientConfigProvider;
 import dev.ervinszilagyi.config.llm.LlmConfig;
 import dev.ervinszilagyi.config.mcp.McpConfig;
 import dev.ervinszilagyi.config.mcp.McpConfigProvider;
+import dev.ervinszilagyi.mcpserver.McpLogMessageListener;
 import dev.ervinszilagyi.md.StylizedPrinter;
 import dev.ervinszilagyi.session.ChatSession;
 import dev.ervinszilagyi.session.RequestResponseListener;
@@ -57,12 +58,17 @@ public class SessionCommand implements Runnable {
                     List.of(requestResponseListener)
             );
 
+            StylizedPrinter stylizedPrinter = new StylizedPrinter(terminal);
+
+            McpLogMessageListener mcpLogMessageListener = new McpLogMessageListener(stylizedPrinter);
+
             LlmClientProvider llmClientProvider = new LlmClientProvider();
             LlmClient llmClient = llmClientProvider.buildLlmClient(mcpConfig,
                     chatLanguageModelWithInfo.chatLanguageModel(),
-                    chatMemory);
+                    chatMemory,
+                    mcpLogMessageListener,
+                    debugMode);
 
-            StylizedPrinter stylizedPrinter = new StylizedPrinter(terminal);
             ChatSession chatSession = new ChatSession(llmClient,
                     chatLanguageModelWithInfo.modelInfo(),
                     chatMemory,

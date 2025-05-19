@@ -6,6 +6,7 @@ import dev.langchain4j.mcp.McpToolProvider;
 import dev.langchain4j.mcp.client.DefaultMcpClient;
 import dev.langchain4j.mcp.client.McpClient;
 import dev.langchain4j.mcp.client.logging.DefaultMcpLogMessageHandler;
+import dev.langchain4j.mcp.client.logging.McpLogMessageHandler;
 import dev.langchain4j.mcp.client.transport.McpTransport;
 import dev.langchain4j.mcp.client.transport.stdio.StdioMcpTransport;
 import dev.langchain4j.memory.ChatMemory;
@@ -28,17 +29,22 @@ public class LlmClientProvider {
 
     /**
      * Build an {@link LlmClient} based on the configuration provided.
-     * @param mcpConfig MCP configuration details
-     * @param chatLanguageModel {@link ChatLanguageModel} instance representing the low level LLM client
-     * @param chatMemory Chat memory for the LLM client
+     *
+     * @param mcpConfig            MCP configuration details
+     * @param chatLanguageModel    {@link ChatLanguageModel} instance representing the low level LLM client
+     * @param chatMemory           Chat memory for the LLM client
+     * @param mcpLogMessageHandler Handler form MCP server logs
+     * @param isLlmLoggingEnabled  Flag for enabling detailed logging
      * @return {@link LlmClient}
      */
     public LlmClient buildLlmClient(final McpConfig mcpConfig,
                                     final ChatLanguageModel chatLanguageModel,
-                                    final ChatMemory chatMemory) {
+                                    final ChatMemory chatMemory,
+                                    final McpLogMessageHandler mcpLogMessageHandler,
+                                    final boolean isLlmLoggingEnabled) {
         logger.info("Create LlmClient");
 
-        Map<String, McpClient> mcpClients = buildMcpClientList(mcpConfig);
+        Map<String, McpClient> mcpClients = buildMcpClientList(mcpConfig, mcpLogMessageHandler, isLlmLoggingEnabled);
         ToolProvider toolProvider = McpToolProvider.builder()
                 .mcpClients(mcpClients.values().stream().toList())
                 .build();
@@ -52,10 +58,15 @@ public class LlmClientProvider {
 
     /**
      * Build the {@link McpClient} used by the {@link LlmClient} to call MCP tools
-     * @param mcpConfig MCP configuration details
-     * @return MCP Client
+     *
+     * @param mcpConfig            MCP configuration details
+     * @param isLlmLoggingEnabled  Flag for enabling detailed logging
+     * @param mcpLogMessageHandler Handler form MCP server logs
+     * @return {@link Map<String, McpClient>} MCP client list by MCP server name
      */
-    public Map<String, McpClient> buildMcpClientList(final McpConfig mcpConfig) {
+    public Map<String, McpClient> buildMcpClientList(final McpConfig mcpConfig,
+                                                     final McpLogMessageHandler mcpLogMessageHandler,
+                                                     final boolean isLlmLoggingEnabled) {
         record McpClientWithName(String name, McpClient mcpClient) {
         }
 
@@ -67,11 +78,11 @@ public class LlmClientProvider {
                     McpTransport transport = new StdioMcpTransport.Builder()
                             .command(command)
                             .environment(mcpServer.env())
-                            .logEvents(true)
+                            .logEvents(isLlmLoggingEnabled)
                             .build();
                     return new McpClientWithName(entry.getKey(), new DefaultMcpClient.Builder()
                             .transport(transport)
-                            .logHandler(new DefaultMcpLogMessageHandler())
+                            .logHandler(mcpLogMessageHandler)
                             .build());
                 })
                 .collect(Collectors.toMap(McpClientWithName::name, McpClientWithName::mcpClient));
