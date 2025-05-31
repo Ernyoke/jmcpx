@@ -23,7 +23,8 @@ public class ChatModelProvider {
      *
      * @param modelConfig         configuration for the chat language model to be created
      * @param isLlmLoggingEnabled if true will enable request and response logging for the model
-     * @param listeners           list of {@ChatModelListener} listener that can be used to catch requests and responses to the model
+     * @param listeners           list of {@link ChatModelListener} listener that can be used to catch requests and
+     *                            responses to the model
      * @return {@link ChatModel}
      */
     public ChatModelWithInfo buildChatModel(final ModelConfig modelConfig,

@@ -6,7 +6,8 @@ import java.util.Set;
 public enum SessionCommand {
     EXIT("/exit", Set.of(), "Exit from the current session."),
     NEW("/new", Set.of("/clear"), "Clear history and create a new session."),
-    HELP("/help", Set.of(), "Get help information.");
+    HELP("/help", Set.of(), "Get help information."),
+    TOOLS("/tools", Set.of(), "List available tools.");
 
     final String commandStr;
     final Set<String> aliases;

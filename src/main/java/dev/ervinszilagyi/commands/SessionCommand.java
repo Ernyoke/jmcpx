@@ -6,9 +6,11 @@ import dev.ervinszilagyi.config.llm.LlmConfig;
 import dev.ervinszilagyi.config.mcp.McpConfig;
 import dev.ervinszilagyi.config.mcp.McpConfigProvider;
 import dev.ervinszilagyi.mcpserver.McpLogMessageListener;
+import dev.ervinszilagyi.mcpserver.McpServerDetailsRetriever;
 import dev.ervinszilagyi.md.StylizedPrinter;
 import dev.ervinszilagyi.session.ChatSession;
 import dev.ervinszilagyi.session.RequestResponseListener;
+import dev.langchain4j.mcp.client.McpClient;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import org.slf4j.Logger;
@@ -18,6 +20,7 @@ import picocli.CommandLine;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 @CommandLine.Command(name = "session", description = "Start MCP session.")
 public class SessionCommand implements Runnable {
@@ -63,15 +66,21 @@ public class SessionCommand implements Runnable {
             McpLogMessageListener mcpLogMessageListener = new McpLogMessageListener(stylizedPrinter);
 
             LlmClientProvider llmClientProvider = new LlmClientProvider();
+
             LlmClient llmClient = llmClientProvider.buildLlmClient(mcpConfig,
                     chatModelWithInfo.chatModel(),
                     chatMemory,
                     mcpLogMessageListener,
                     debugMode);
 
+            Map<String, McpClient> mcpClients = llmClientProvider.buildMcpClientList(mcpConfig,
+                    mcpLogMessageListener, debugMode);
+            McpServerDetailsRetriever mcpServerDetailsRetriever = new McpServerDetailsRetriever(mcpClients);
+
             ChatSession chatSession = new ChatSession(llmClient,
                     chatModelWithInfo.modelInfo(),
                     chatMemory,
+                    mcpServerDetailsRetriever,
                     stylizedPrinter);
 
             chatSession.openSession(terminal);

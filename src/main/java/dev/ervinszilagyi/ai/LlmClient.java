@@ -11,7 +11,7 @@ import dev.langchain4j.service.V;
 public interface LlmClient {
     @SystemMessage(
             """
-                    You are a general-purpose AI agent.l
+                    You are a general-purpose AI agent.
                     
                     The current date is: {{currentDateTime}}.
                     

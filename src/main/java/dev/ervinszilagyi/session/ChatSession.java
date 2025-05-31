@@ -3,7 +3,9 @@ package dev.ervinszilagyi.session;
 import dev.ervinszilagyi.ai.LlmClient;
 import dev.ervinszilagyi.ai.ModelInfo;
 import dev.ervinszilagyi.ai.SquashedChatMemory;
+import dev.ervinszilagyi.mcpserver.McpServerDetailsRetriever;
 import dev.ervinszilagyi.md.StylizedPrinter;
+import dev.langchain4j.agent.tool.ToolSpecification;
 import dev.langchain4j.exception.RateLimitException;
 import dev.langchain4j.model.output.TokenUsage;
 import dev.langchain4j.service.Result;
@@ -14,6 +16,8 @@ import org.slf4j.LoggerFactory;
 
 import java.time.LocalDate;
 import java.util.EnumSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public class ChatSession {
@@ -23,6 +27,7 @@ public class ChatSession {
     private final LlmClient llmClient;
     private final ModelInfo modelInfo;
     private final SquashedChatMemory chatMemory;
+    private final McpServerDetailsRetriever mcpServerDetailsRetriever;
 
     private final StylizedPrinter stylizedPrinter;
 
@@ -31,10 +36,12 @@ public class ChatSession {
     public ChatSession(final LlmClient llmClient,
                        final ModelInfo modelInfo,
                        final SquashedChatMemory chatMemory,
+                       final McpServerDetailsRetriever mcpServerDetailsRetriever,
                        final StylizedPrinter stylizedPrinter) {
         this.llmClient = llmClient;
         this.modelInfo = modelInfo;
         this.chatMemory = chatMemory;
+        this.mcpServerDetailsRetriever = mcpServerDetailsRetriever;
         this.stylizedPrinter = stylizedPrinter;
     }
 
@@ -72,6 +79,17 @@ public class ChatSession {
                                     cmd -> stylizedPrinter.printSystemMessage(cmd.getDocumentation())
                             );
                             break;
+                        }
+                        case SessionCommand.TOOLS: {
+                            Map<String, List<ToolSpecification>> toolSpecifications =
+                                    mcpServerDetailsRetriever.getToolSpecifications(null);
+                            for (var entry : toolSpecifications.entrySet()) {
+                                stylizedPrinter.printInfoMessage(entry.getKey() + ":\n");
+                                for (var tool : entry.getValue()) {
+                                    stylizedPrinter.printInfoMessage(" - " + tool.name() + ":\n");
+                                    stylizedPrinter.printInfoMessage(tool.description() + "\n");
+                                }
+                            }
                         }
                     }
                     continue;
