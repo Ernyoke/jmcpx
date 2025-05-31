@@ -1,8 +1,9 @@
 package dev.ervinszilagyi.session;
 
-import dev.ervinszilagyi.ai.LlmClient;
-import dev.ervinszilagyi.ai.ModelInfo;
-import dev.ervinszilagyi.ai.SquashedChatMemory;
+import dev.ervinszilagyi.ai.chatmodel.ChatModelWithInfo;
+import dev.ervinszilagyi.ai.llmclient.LlmClient;
+import dev.ervinszilagyi.ai.chatmodel.ModelInfo;
+import dev.ervinszilagyi.ai.memory.SquashedChatMemory;
 import dev.ervinszilagyi.mcpserver.McpServerDetailsRetriever;
 import dev.ervinszilagyi.md.StylizedPrinter;
 import dev.langchain4j.agent.tool.ToolSpecification;
@@ -14,6 +15,7 @@ import org.jline.terminal.Terminal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import java.time.LocalDate;
 import java.util.EnumSet;
 import java.util.List;
@@ -25,31 +27,36 @@ public class ChatSession {
     private static final Logger logger = LoggerFactory.getLogger(ChatSession.class);
 
     private final LlmClient llmClient;
-    private final ModelInfo modelInfo;
+    private final ChatModelWithInfo chatModelWithInfo;
     private final SquashedChatMemory chatMemory;
     private final McpServerDetailsRetriever mcpServerDetailsRetriever;
 
     private final StylizedPrinter stylizedPrinter;
+    private final Terminal terminal;
 
     private final EnumSet<SessionCommand> commands = EnumSet.allOf(SessionCommand.class);
 
+    @Inject
     public ChatSession(final LlmClient llmClient,
-                       final ModelInfo modelInfo,
+                       final ChatModelWithInfo chatModelWithInfo,
                        final SquashedChatMemory chatMemory,
                        final McpServerDetailsRetriever mcpServerDetailsRetriever,
-                       final StylizedPrinter stylizedPrinter) {
+                       final StylizedPrinter stylizedPrinter,
+                       final Terminal terminal) {
         this.llmClient = llmClient;
-        this.modelInfo = modelInfo;
+        this.chatModelWithInfo = chatModelWithInfo;
         this.chatMemory = chatMemory;
         this.mcpServerDetailsRetriever = mcpServerDetailsRetriever;
         this.stylizedPrinter = stylizedPrinter;
+        this.terminal = terminal;
     }
 
-    public void openSession(Terminal terminal) {
+    public void openSession() {
         int tokensUsedInCurrentSession = 0;
         LineReader reader = LineReaderBuilder.builder()
                 .terminal(terminal)
                 .build();
+        ModelInfo modelInfo = chatModelWithInfo.modelInfo();
         stylizedPrinter.printSystemMessage("Using model " + modelInfo.modelName() + " from " + modelInfo.providerName());
         while (true) {
             try {

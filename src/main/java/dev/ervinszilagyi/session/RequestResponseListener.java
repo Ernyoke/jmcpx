@@ -15,12 +15,14 @@ import org.jline.utils.AttributedStyle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import java.io.PrintWriter;
 
 public class RequestResponseListener implements ChatModelListener {
     private final Terminal terminal;
     private static final Logger logger = LoggerFactory.getLogger(RequestResponseListener.class);
 
+    @Inject
     public RequestResponseListener(final Terminal terminal) {
         this.terminal = terminal;
     }

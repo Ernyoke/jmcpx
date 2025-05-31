@@ -1,26 +1,12 @@
 package dev.ervinszilagyi.commands;
 
-import dev.ervinszilagyi.ai.*;
-import dev.ervinszilagyi.config.llm.LlmClientConfigProvider;
-import dev.ervinszilagyi.config.llm.LlmConfig;
-import dev.ervinszilagyi.config.mcp.McpConfig;
-import dev.ervinszilagyi.config.mcp.McpConfigProvider;
-import dev.ervinszilagyi.mcpserver.McpLogMessageListener;
-import dev.ervinszilagyi.mcpserver.McpServerDetailsRetriever;
-import dev.ervinszilagyi.md.StylizedPrinter;
-import dev.ervinszilagyi.session.ChatSession;
-import dev.ervinszilagyi.session.RequestResponseListener;
-import dev.langchain4j.mcp.client.McpClient;
-import org.jline.terminal.Terminal;
-import org.jline.terminal.TerminalBuilder;
+import dev.ervinszilagyi.app.AppComponent;
+import dev.ervinszilagyi.app.DaggerAppComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
 
 @CommandLine.Command(name = "session", description = "Start MCP session.")
 public class SessionCommand implements Runnable {
@@ -38,56 +24,9 @@ public class SessionCommand implements Runnable {
 
     @Override
     public void run() {
-        String storeId = "Squashed Chat Memory";
-        SquashedChatMemoryStore squashedChatMemoryStore = new SquashedChatMemoryStore(storeId);
-        SquashedChatMemory chatMemory = new SquashedChatMemory(storeId, squashedChatMemoryStore);
+        AppComponent appComponent = DaggerAppComponent.factory()
+                .create(mcpLocation, llmConfigLocation);
 
-        try {
-            Terminal terminal = TerminalBuilder.builder()
-                    .jansi(true)
-                    .jna(true)
-                    .system(true)
-                    .build();
-
-            McpConfig mcpConfig = McpConfigProvider.loadConfig(mcpLocation);
-            LlmConfig llmConfig = LlmClientConfigProvider.loadConfig(llmConfigLocation);
-
-            RequestResponseListener requestResponseListener = new RequestResponseListener(terminal);
-            ChatModelProvider chatModelProvider = new ChatModelProvider();
-
-            ChatModelWithInfo chatModelWithInfo = chatModelProvider.buildChatModel(
-                    llmConfig.getDefaultConfig(),
-                    debugMode,
-                    List.of(requestResponseListener)
-            );
-
-            StylizedPrinter stylizedPrinter = new StylizedPrinter(terminal);
-
-            McpLogMessageListener mcpLogMessageListener = new McpLogMessageListener(stylizedPrinter);
-
-            LlmClientProvider llmClientProvider = new LlmClientProvider();
-
-            LlmClient llmClient = llmClientProvider.buildLlmClient(mcpConfig,
-                    chatModelWithInfo.chatModel(),
-                    chatMemory,
-                    mcpLogMessageListener,
-                    debugMode);
-
-            Map<String, McpClient> mcpClients = llmClientProvider.buildMcpClientList(mcpConfig,
-                    mcpLogMessageListener, debugMode);
-            McpServerDetailsRetriever mcpServerDetailsRetriever = new McpServerDetailsRetriever(mcpClients);
-
-            ChatSession chatSession = new ChatSession(llmClient,
-                    chatModelWithInfo.modelInfo(),
-                    chatMemory,
-                    mcpServerDetailsRetriever,
-                    stylizedPrinter);
-
-            chatSession.openSession(terminal);
-
-        } catch (IOException e) {
-            logger.error(e.getMessage());
-            throw new RuntimeException(e);
-        }
+        appComponent.chatSession().openSession();
     }
 }

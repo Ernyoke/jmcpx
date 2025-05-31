@@ -4,6 +4,8 @@ import dev.ervinszilagyi.md.StylizedPrinter;
 import dev.langchain4j.mcp.client.logging.McpLogMessage;
 import dev.langchain4j.mcp.client.logging.McpLogMessageHandler;
 
+import javax.inject.Inject;
+
 /**
  * Catch system messages from MCP server and log them to the user.
  * Unfortunately, currently it does not work as expected, the handler is not called by LangChain.
@@ -11,6 +13,7 @@ import dev.langchain4j.mcp.client.logging.McpLogMessageHandler;
 public class McpLogMessageListener implements McpLogMessageHandler {
     private final StylizedPrinter stylizedPrinter;
 
+    @Inject
     public McpLogMessageListener(StylizedPrinter stylizedPrinter) {
         this.stylizedPrinter = stylizedPrinter;
     }

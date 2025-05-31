@@ -1,4 +1,4 @@
-package dev.ervinszilagyi.ai;
+package dev.ervinszilagyi.ai.memory;
 
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.ChatMessage;
@@ -9,13 +9,14 @@ import dev.langchain4j.store.memory.chat.ChatMemoryStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
 
 /**
- /**
+ * /**
  * Represents a store for the {@link ChatMemory} state with the addition that the chain of tool request/response
  * messages can be squashed.
  */
@@ -25,7 +26,8 @@ public class SquashedChatMemory implements ChatMemory {
     private final Object id;
     private final ChatMemoryStore store;
 
-    public SquashedChatMemory(final Object id, final SquashedChatMemoryStore store) {
+    @Inject
+    public SquashedChatMemory(@MemoryId String id, final SquashedChatMemoryStore store) {
         this.id = id;
         this.store = store;
     }
@@ -66,7 +68,7 @@ public class SquashedChatMemory implements ChatMemory {
      * Squash tool execution messages by removing AI messages with tool execution requests and ToolExecutionResultMessage
      * messages. After every ToolExecutionResultMessage there is an AIMessage that will either request other tool call
      * or it will summarize the result. We can keep only the final AIMessage that represents the final answer of the LLM.
-     *
+     * <p>
      * Warning: this method should be called after a chain of Tool calls has ended and the LLM formalized a final
      * response for the user query.
      */

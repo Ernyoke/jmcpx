@@ -11,6 +11,7 @@ import org.jline.terminal.Terminal;
 import org.jline.utils.AttributedStringBuilder;
 import org.jline.utils.AttributedStyle;
 
+import javax.inject.Inject;
 import java.io.PrintWriter;
 
 public class StylizedPrinter {
@@ -19,6 +20,7 @@ public class StylizedPrinter {
 
     private final Terminal terminal;
 
+    @Inject
     public StylizedPrinter(final Terminal terminal) {
         this.terminal = terminal;
 

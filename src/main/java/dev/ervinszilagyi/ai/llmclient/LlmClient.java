@@ -1,4 +1,4 @@
-package dev.ervinszilagyi.ai;
+package dev.ervinszilagyi.ai.llmclient;
 
 import dev.langchain4j.service.Result;
 import dev.langchain4j.service.SystemMessage;

@@ -6,6 +6,7 @@ import dev.langchain4j.mcp.client.McpException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +15,7 @@ public class McpServerDetailsRetriever {
     private final Map<String, McpClient> mcpClients;
     private static final Logger logger = LoggerFactory.getLogger(McpServerDetailsRetriever.class);
 
+    @Inject
     public McpServerDetailsRetriever(Map<String, McpClient> mcpClients) {
         this.mcpClients = mcpClients;
     }

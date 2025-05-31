@@ -1,5 +1,8 @@
 package dev.ervinszilagyi.config.llm;
 
+import dagger.Module;
+import dagger.Provides;
+import jakarta.inject.Named;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tomlj.Toml;
@@ -11,12 +14,19 @@ import java.io.IOException;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-public class LlmClientConfigProvider {
-    private static final Logger logger = LoggerFactory.getLogger(LlmClientConfigProvider.class);
+@Module
+public class LlmConfigModule {
+    private static final Logger logger = LoggerFactory.getLogger(LlmConfigModule.class);
 
-    static public LlmConfig loadConfig(final File configFile) throws IOException {
+    @Provides
+    public LlmConfig llmConfig(@Named("llmConfig") File configFile) {
         logger.info("Loading LLM config from {}", configFile);
-        TomlParseResult result = Toml.parse(configFile.toPath());
+        TomlParseResult result;
+        try {
+            result = Toml.parse(configFile.toPath());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
         return new LlmConfig("name", Stream.of(
                         parseAnthropicConfig(result.getTableOrEmpty("anthropic")),

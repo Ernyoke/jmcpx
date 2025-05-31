@@ -1,8 +1,9 @@
-package dev.ervinszilagyi.ai;
+package dev.ervinszilagyi.ai.memory;
 
 import dev.langchain4j.data.message.ChatMessage;
 import dev.langchain4j.store.memory.chat.ChatMemoryStore;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,7 +14,8 @@ public class SquashedChatMemoryStore implements ChatMemoryStore {
     private List<ChatMessage> messages;
     private final Object memoryId;
 
-    public SquashedChatMemoryStore(Object memoryId) {
+    @Inject
+    public SquashedChatMemoryStore(@MemoryId String memoryId) {
         this.memoryId = memoryId;
         this.messages = new ArrayList<>();
     }

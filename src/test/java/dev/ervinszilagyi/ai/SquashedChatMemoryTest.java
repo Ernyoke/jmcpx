@@ -1,5 +1,7 @@
 package dev.ervinszilagyi.ai;
 
+import dev.ervinszilagyi.ai.memory.SquashedChatMemory;
+import dev.ervinszilagyi.ai.memory.SquashedChatMemoryStore;
 import dev.langchain4j.agent.tool.ToolExecutionRequest;
 import dev.langchain4j.data.message.*;
 import org.junit.jupiter.api.BeforeEach;

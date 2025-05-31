@@ -1,4 +1,4 @@
-package dev.ervinszilagyi.ai;
+package dev.ervinszilagyi.ai.chatmodel;
 
 /**
  * Store information about the current model in use.

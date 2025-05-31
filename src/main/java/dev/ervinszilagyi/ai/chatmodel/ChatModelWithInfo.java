@@ -1,4 +1,4 @@
-package dev.ervinszilagyi.ai;
+package dev.ervinszilagyi.ai.chatmodel;
 
 import dev.langchain4j.model.chat.ChatModel;
 
