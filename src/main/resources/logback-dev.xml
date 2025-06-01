@@ -1,8 +1,7 @@
 <configuration>
-    <timestamp key="myTimestamp" datePattern="yyyy-MM-dd'_'HH-mm-ss.SSS"/>
     <!-- File appender for JLine -->
     <appender name="FILE" class="ch.qos.logback.core.FileAppender">
-        <file>${user.home}/jmcpx/logback-${myTimestamp}.log</file>
+        <file>logback.log</file>
         <encoder>
             <pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n</pattern>
         </encoder>

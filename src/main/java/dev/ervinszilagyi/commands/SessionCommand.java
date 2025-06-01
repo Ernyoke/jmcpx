@@ -10,10 +10,10 @@ import java.io.File;
 
 @CommandLine.Command(name = "session", description = "Start MCP session.")
 public class SessionCommand implements Runnable {
-    @CommandLine.Option(names = {"-c", "--mcp"}, description = "Location of the mcp.json file.", defaultValue = "mcp.json")
+    @CommandLine.Option(names = {"-c", "--mcp"}, description = "Location of the mcp.json file.", defaultValue = "${sys:user.home}/jmcpx/mcp.json")
     private File mcpLocation;
 
-    @CommandLine.Option(names = {"-l", "--llm"}, description = "Location of the llm.toml file.", defaultValue = "llm.toml")
+    @CommandLine.Option(names = {"-l", "--llm"}, description = "Location of the llm.toml file.", defaultValue = "${sys:user.home}/llm.toml")
     private File llmConfigLocation;
 
     @CommandLine.Option(names = {"-d", "--debug"}, description = "Run application is debug mode with. This will enable " +

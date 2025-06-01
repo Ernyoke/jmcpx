@@ -45,22 +45,31 @@ java -jar target/jmcpx-1.0-SNAPSHOT.jar session
 ```
 Options:
 
-- `-c` or `--mcp`: Specify the location of the `mcp.json` file (default: `mcp.json`).
-- `-l` or `--llm`: Specify the location of the `llm.toml` file (default: `llm.toml`).
+- `-c` or `--mcp`: Specify the location of the `mcp.json` file (default: `<user.home>/.config/jmcpx/mcp.json`).
+- `-l` or `--llm`: Specify the location of the `llm.toml` file (default: `<user.home>/.config/jmcpx/llm.toml`).
 
-### List Details
+### List MCP Server Details
 
 List available tools and resources from MCP servers:
 ```sh
 java -jar target/jmcpx-1.0-SNAPSHOT.jar list
 ```
 Options:
-- `-c` or `--mcp`: Specify the location of the `mcp.json` file (default: `mcp.json`).
-- `-l` or `--llm`: Specify the location of the `llm.toml` file (default: `llm.toml`).
+- `-c` or `--mcp`: Specify the location of the `mcp.json` file (default: `<user.home>/.config/jmcpx/mcp.json`).
+- `-l` or `--llm`: Specify the location of the `llm.toml` file (default: `<user.home>/.config/jmcpx/llm.toml`).
 
 ## Configuration
 
+By default, you can place both the `mcp.json` and `llm.toml` configuration files in your user's home folder, 
+specifically inside `<user.home>/.config/jmcpx` folder.
+
+If you are using Windows, the path for your home folder by default is `C:\Users\<username>` (Example: `C:\Users\ervin`).
+For OSX/Linux, this would be something like `/home/<username>`.
+
+You can overwrite these paths with `-c` flag for the `mcp.json` file and with `-l` for the `llm.toml` configuration file.
+
 ### MCP Configuration
+
 The `mcp.json` file defines the MCP servers and their configurations. Example:
 ```json
 {
@@ -88,6 +97,14 @@ default = true
 modelName = "claude-v1"
 apiKey = "your-anthropic-api-key"
 default = false
+```
+
+## Logging
+
+### Use DEV logback Configuration
+
+```
+java -Dlogback.configurationFile=logback-dev.xml -jar target/jmcpx-1.0-SNAPSHOT.jar
 ```
 
 ## License
