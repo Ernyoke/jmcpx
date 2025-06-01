@@ -3,6 +3,7 @@ package dev.ervinszilagyi.config.llm;
 import dagger.Module;
 import dagger.Provides;
 import jakarta.inject.Named;
+import jakarta.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tomlj.Toml;
@@ -15,10 +16,11 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 @Module
-public class LlmConfigModule {
-    private static final Logger logger = LoggerFactory.getLogger(LlmConfigModule.class);
+public class LlmConfigProvider {
+    private static final Logger logger = LoggerFactory.getLogger(LlmConfigProvider.class);
 
     @Provides
+    @Singleton
     public LlmConfig llmConfig(@Named("llmConfig") File configFile) {
         logger.info("Loading LLM config from {}", configFile);
         TomlParseResult result;

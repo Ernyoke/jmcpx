@@ -9,15 +9,17 @@ import dev.langchain4j.model.chat.listener.ChatModelRequestContext;
 import dev.langchain4j.model.chat.listener.ChatModelResponseContext;
 import dev.langchain4j.model.chat.request.ChatRequest;
 import dev.langchain4j.model.chat.response.ChatResponse;
+import jakarta.inject.Inject;
 import org.jline.terminal.Terminal;
 import org.jline.utils.AttributedStringBuilder;
 import org.jline.utils.AttributedStyle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.io.PrintWriter;
 
+@Singleton
 public class RequestResponseListener implements ChatModelListener {
     private final Terminal terminal;
     private static final Logger logger = LoggerFactory.getLogger(RequestResponseListener.class);

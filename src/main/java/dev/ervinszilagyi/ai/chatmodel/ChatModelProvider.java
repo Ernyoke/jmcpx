@@ -10,6 +10,7 @@ import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.chat.listener.ChatModelListener;
 import dev.langchain4j.model.googleai.GoogleAiGeminiChatModel;
 import dev.langchain4j.model.openai.OpenAiChatModel;
+import jakarta.inject.Singleton;
 import software.amazon.awssdk.regions.Region;
 
 import java.util.List;
@@ -17,6 +18,7 @@ import java.util.List;
 @Module
 public class ChatModelProvider {
     @Provides
+    @Singleton
     public ChatModelWithInfo chatModel(final LlmConfig llmConfig,
                                        final ChatModelListener chatModelListener) {
         ModelConfig modelConfig = llmConfig.getDefaultConfig();

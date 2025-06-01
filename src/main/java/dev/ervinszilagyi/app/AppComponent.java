@@ -12,8 +12,8 @@ import dev.ervinszilagyi.commands.list.ListMcpDetails;
 import dev.ervinszilagyi.commands.session.ChatModelListenerProvider;
 import dev.ervinszilagyi.commands.session.ChatSession;
 import dev.ervinszilagyi.config.llm.LlmConfig;
-import dev.ervinszilagyi.config.llm.LlmConfigModule;
-import dev.ervinszilagyi.config.mcp.McpConfigModule;
+import dev.ervinszilagyi.config.llm.LlmConfigProvider;
+import dev.ervinszilagyi.config.mcp.McpConfigProvider;
 import dev.ervinszilagyi.md.StylizedPrinter;
 import dev.ervinszilagyi.terminal.TerminalModule;
 import dev.langchain4j.mcp.client.McpClient;
@@ -25,8 +25,8 @@ import java.io.File;
 import java.util.Map;
 
 @Component(modules = {
-        McpConfigModule.class,
-        LlmConfigModule.class,
+        McpConfigProvider.class,
+        LlmConfigProvider.class,
         TerminalModule.class,
         ChatModelProvider.class,
         ChatModelListenerProvider.class,

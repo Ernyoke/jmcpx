@@ -12,8 +12,8 @@ import java.io.File;
 import java.io.IOException;
 
 @Module
-public class McpConfigModule {
-    private static final Logger logger = LoggerFactory.getLogger(McpConfigModule.class);
+public class McpConfigProvider {
+    private static final Logger logger = LoggerFactory.getLogger(McpConfigProvider.class);
 
     @Provides
     @Singleton

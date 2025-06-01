@@ -14,6 +14,7 @@ import dev.langchain4j.mcp.client.transport.stdio.StdioMcpTransport;
 import dev.langchain4j.memory.ChatMemory;
 import dev.langchain4j.service.AiServices;
 import dev.langchain4j.service.tool.ToolProvider;
+import jakarta.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,6 +38,7 @@ public class LlmClientProvider {
      * @return {@link LlmClient}
      */
     @Provides
+    @Singleton
     public LlmClient llmClient(Map<String, McpClient> mcpClients,
                                final ChatModelWithInfo chatModelWithInfo,
                                final ChatMemory chatMemory) {
