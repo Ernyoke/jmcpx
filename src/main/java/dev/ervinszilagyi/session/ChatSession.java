@@ -34,7 +34,7 @@ public class ChatSession {
     private final StylizedPrinter stylizedPrinter;
     private final Terminal terminal;
 
-    private final EnumSet<SessionCommand> commands = EnumSet.allOf(SessionCommand.class);
+    private final EnumSet<ChatSessionCommand> commands = EnumSet.allOf(ChatSessionCommand.class);
 
     @Inject
     public ChatSession(final LlmClient llmClient,
@@ -65,13 +65,13 @@ public class ChatSession {
                     continue;
                 }
 
-                Optional<SessionCommand> command = toCommand(line.strip().toLowerCase());
+                Optional<ChatSessionCommand> command = toCommand(line.strip().toLowerCase());
 
                 if (command.isPresent()) {
                     switch (command.orElseThrow()) {
-                        case SessionCommand.EXIT:
+                        case ChatSessionCommand.EXIT:
                             return;
-                        case SessionCommand.NEW: {
+                        case ChatSessionCommand.NEW: {
                             // Clear the memory and notify the user
                             this.chatMemory.clear();
                             this.stylizedPrinter.printSystemMessage("Starting new session. Chat history was cleared!");
@@ -80,14 +80,14 @@ public class ChatSession {
                             tokensUsedInCurrentSession = 0;
                             break;
                         }
-                        case SessionCommand.HELP: {
+                        case ChatSessionCommand.HELP: {
                             stylizedPrinter.printSystemMessage("Commands:");
                             commands.forEach(
                                     cmd -> stylizedPrinter.printSystemMessage(cmd.getDocumentation())
                             );
                             break;
                         }
-                        case SessionCommand.TOOLS: {
+                        case ChatSessionCommand.TOOLS: {
                             Map<String, List<ToolSpecification>> toolSpecifications =
                                     mcpServerDetailsRetriever.getToolSpecifications(null);
                             for (var entry : toolSpecifications.entrySet()) {
@@ -124,7 +124,7 @@ public class ChatSession {
         }
     }
 
-    private Optional<SessionCommand> toCommand(String commandLike) {
+    private Optional<ChatSessionCommand> toCommand(String commandLike) {
         return commands.stream().filter(command -> command.isCommand(commandLike)).findFirst();
     }
 }

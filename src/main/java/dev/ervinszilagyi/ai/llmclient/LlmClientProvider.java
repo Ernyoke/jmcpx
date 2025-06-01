@@ -54,7 +54,8 @@ public class LlmClientProvider {
     }
 
     /**
-     * Build the {@link McpClient} used by the {@link LlmClient} to call MCP tools
+     * Build a {@link Map<String, McpClient>} of MCP clients. The map pairs the name of the client with the
+     * initialized {@link McpClient} instance.
      *
      * @param mcpConfig            MCP configuration details
      * @param mcpLogMessageHandler Handler form MCP server logs
