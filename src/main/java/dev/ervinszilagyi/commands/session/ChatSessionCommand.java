@@ -1,4 +1,4 @@
-package dev.ervinszilagyi.session;
+package dev.ervinszilagyi.commands.session;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -10,7 +10,8 @@ public enum ChatSessionCommand {
     EXIT("/exit", Set.of(), "Exit from the current session."),
     NEW("/new", Set.of("/clear"), "Clear history and create a new session."),
     HELP("/help", Set.of(), "Get help information."),
-    TOOLS("/tools", Set.of(), "List available tools.");
+    TOOLS("/tools", Set.of(), "List available tools."),
+    PROMPTS("/prompts", Set.of(), "List available prompts");
 
     final String commandStr;
     final Set<String> aliases;

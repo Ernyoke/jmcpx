@@ -4,7 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 
-import java.io.IOException;
 import java.util.concurrent.Callable;
 
 @CommandLine.Command(name = "jmcpx", mixinStandardHelpOptions = true, version = "0.1.0",
@@ -17,7 +16,7 @@ public class InitCommand implements Callable<Integer> {
     private static final Logger logger = LoggerFactory.getLogger(InitCommand.class);
 
     @Override
-    public Integer call() throws IOException {
+    public Integer call() {
         logger.info("Application started.");
 
         CommandLine.ParseResult parseResult = spec.commandLine().getParseResult();

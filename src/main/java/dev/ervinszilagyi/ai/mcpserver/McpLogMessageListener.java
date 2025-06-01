@@ -1,10 +1,9 @@
-package dev.ervinszilagyi.mcpserver;
+package dev.ervinszilagyi.ai.mcpserver;
 
 import dev.ervinszilagyi.md.StylizedPrinter;
 import dev.langchain4j.mcp.client.logging.McpLogMessage;
 import dev.langchain4j.mcp.client.logging.McpLogMessageHandler;
-
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 /**
  * Catch system messages from MCP server and log them to the user.

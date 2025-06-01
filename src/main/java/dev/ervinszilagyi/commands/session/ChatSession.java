@@ -1,13 +1,14 @@
-package dev.ervinszilagyi.session;
+package dev.ervinszilagyi.commands.session;
 
 import dev.ervinszilagyi.ai.chatmodel.ChatModelWithInfo;
-import dev.ervinszilagyi.ai.llmclient.LlmClient;
 import dev.ervinszilagyi.ai.chatmodel.ModelInfo;
+import dev.ervinszilagyi.ai.llmclient.LlmClient;
+import dev.ervinszilagyi.ai.mcpserver.McpServerDetailsRetriever;
 import dev.ervinszilagyi.ai.memory.SquashedChatMemory;
-import dev.ervinszilagyi.mcpserver.McpServerDetailsRetriever;
 import dev.ervinszilagyi.md.StylizedPrinter;
 import dev.langchain4j.agent.tool.ToolSpecification;
 import dev.langchain4j.exception.RateLimitException;
+import dev.langchain4j.mcp.client.McpPrompt;
 import dev.langchain4j.model.output.TokenUsage;
 import dev.langchain4j.service.Result;
 import org.jline.reader.*;
@@ -15,13 +16,15 @@ import org.jline.terminal.Terminal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.time.LocalDate;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+@Singleton
 public class ChatSession {
 
     private static final Logger logger = LoggerFactory.getLogger(ChatSession.class);
@@ -91,6 +94,17 @@ public class ChatSession {
                             Map<String, List<ToolSpecification>> toolSpecifications =
                                     mcpServerDetailsRetriever.getToolSpecifications(null);
                             for (var entry : toolSpecifications.entrySet()) {
+                                stylizedPrinter.printInfoMessage(entry.getKey() + ":\n");
+                                for (var tool : entry.getValue()) {
+                                    stylizedPrinter.printInfoMessage(" - " + tool.name() + ":\n");
+                                    stylizedPrinter.printInfoMessage(tool.description() + "\n");
+                                }
+                            }
+                        }
+                        case ChatSessionCommand.PROMPTS: {
+                            Map<String, List<McpPrompt>> prompts =
+                                    mcpServerDetailsRetriever.getPrompts(null);
+                            for (var entry : prompts.entrySet()) {
                                 stylizedPrinter.printInfoMessage(entry.getKey() + ":\n");
                                 for (var tool : entry.getValue()) {
                                     stylizedPrinter.printInfoMessage(" - " + tool.name() + ":\n");

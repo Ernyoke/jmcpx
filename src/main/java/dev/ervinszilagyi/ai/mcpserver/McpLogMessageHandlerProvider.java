@@ -1,4 +1,4 @@
-package dev.ervinszilagyi.mcpserver;
+package dev.ervinszilagyi.ai.mcpserver;
 
 import dagger.Binds;
 import dagger.Module;

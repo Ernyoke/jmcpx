@@ -6,14 +6,15 @@ import dev.ervinszilagyi.ai.chatmodel.ChatModelProvider;
 import dev.ervinszilagyi.ai.chatmodel.ChatModelWithInfo;
 import dev.ervinszilagyi.ai.llmclient.LlmClient;
 import dev.ervinszilagyi.ai.llmclient.LlmClientProvider;
+import dev.ervinszilagyi.ai.mcpserver.McpLogMessageHandlerProvider;
 import dev.ervinszilagyi.ai.memory.ChatMemoryProvider;
+import dev.ervinszilagyi.commands.list.ListMcpDetails;
+import dev.ervinszilagyi.commands.session.ChatModelListenerProvider;
+import dev.ervinszilagyi.commands.session.ChatSession;
 import dev.ervinszilagyi.config.llm.LlmConfig;
 import dev.ervinszilagyi.config.llm.LlmConfigModule;
 import dev.ervinszilagyi.config.mcp.McpConfigModule;
-import dev.ervinszilagyi.mcpserver.McpLogMessageHandlerProvider;
 import dev.ervinszilagyi.md.StylizedPrinter;
-import dev.ervinszilagyi.session.ChatModelListenerProvider;
-import dev.ervinszilagyi.session.ChatSession;
 import dev.ervinszilagyi.terminal.TerminalModule;
 import dev.langchain4j.mcp.client.McpClient;
 import jakarta.inject.Named;
@@ -48,6 +49,8 @@ public interface AppComponent {
     LlmClient llmClient();
 
     ChatSession chatSession();
+
+    ListMcpDetails listMcpDetails();
 
     @Component.Factory
     interface Factory {

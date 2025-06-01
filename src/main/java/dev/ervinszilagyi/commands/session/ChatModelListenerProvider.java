@@ -1,4 +1,4 @@
-package dev.ervinszilagyi.session;
+package dev.ervinszilagyi.commands.session;
 
 import dagger.Binds;
 import dagger.Module;

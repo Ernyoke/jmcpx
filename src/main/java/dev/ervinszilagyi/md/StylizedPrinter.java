@@ -11,9 +11,11 @@ import org.jline.terminal.Terminal;
 import org.jline.utils.AttributedStringBuilder;
 import org.jline.utils.AttributedStyle;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.io.PrintWriter;
 
+@Singleton
 public class StylizedPrinter {
     private final Parser parser;
     private final Formatter formatter;

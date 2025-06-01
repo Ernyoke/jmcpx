@@ -1,4 +1,4 @@
-package dev.ervinszilagyi.session;
+package dev.ervinszilagyi.commands.session;
 
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.ChatMessage;
@@ -15,7 +15,7 @@ import org.jline.utils.AttributedStyle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import java.io.PrintWriter;
 
 public class RequestResponseListener implements ChatModelListener {
