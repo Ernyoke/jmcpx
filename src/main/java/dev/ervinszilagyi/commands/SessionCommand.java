@@ -5,6 +5,7 @@ import dev.ervinszilagyi.app.DaggerAppComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
+import system.SystemException;
 
 import java.io.File;
 
@@ -24,9 +25,23 @@ public class SessionCommand implements Runnable {
 
     @Override
     public void run() {
-        AppComponent appComponent = DaggerAppComponent.factory()
-                .create(mcpLocation, llmConfigLocation);
-
-        appComponent.chatSession().openSession();
+        try {
+            AppComponent appComponent = DaggerAppComponent.factory()
+                    .create(mcpLocation, llmConfigLocation);
+            appComponent.chatSession().openSession();
+        } catch (SystemException systemException) {
+            switch (systemException.getErrorType()) {
+                case TERMINAL_COULD_NOT_CREATED -> System.out.println(
+                        "Terminal could not be created: " + systemException.getMessage()
+                );
+                case LLM_TOML_COULD_NOT_BE_LOADED -> System.out.println(
+                        "LLM config could not be loaded: " + systemException.getMessage()
+                );
+                case MCP_CONFIG_COULD_NOT_BE_LOADED -> System.out.println(
+                        "MCP config could not be loaded: " + systemException.getMessage()
+                );
+                default -> System.out.println(systemException.getMessage());
+            }
+        }
     }
 }

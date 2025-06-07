@@ -5,6 +5,7 @@ import dagger.Provides;
 import jakarta.inject.Singleton;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
+import system.SystemException;
 
 import java.io.IOException;
 
@@ -20,7 +21,7 @@ public class TerminalModule {
                     .system(true)
                     .build();
         } catch (IOException ioException) {
-            throw new RuntimeException(ioException);
+            throw new SystemException(SystemException.ErrorType.TERMINAL_COULD_NOT_CREATED, ioException.getMessage());
         }
     }
 }

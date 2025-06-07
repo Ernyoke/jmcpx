@@ -7,8 +7,10 @@ import jakarta.inject.Named;
 import jakarta.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import system.SystemException;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 @Module
@@ -22,8 +24,14 @@ public class McpConfigProvider {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             return objectMapper.readValue(configFile, McpConfig.class);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        } catch (FileNotFoundException fileNotFoundException) {
+            logger.error("Failed to load MCP config from {}", configFile, fileNotFoundException);
+            throw new SystemException(SystemException.ErrorType.MCP_CONFIG_NOT_FOUND,
+                    "MCP config file '" + configFile.getAbsolutePath() + "' not found!");
+        } catch (IOException ioException) {
+            logger.error("Failed to load MCP config from {}", configFile, ioException);
+            throw new SystemException(SystemException.ErrorType.MCP_CONFIG_COULD_NOT_BE_LOADED,
+                    ioException.getMessage());
         }
     }
 }

@@ -9,9 +9,11 @@ import org.slf4j.LoggerFactory;
 import org.tomlj.Toml;
 import org.tomlj.TomlParseResult;
 import org.tomlj.TomlTable;
+import system.SystemException;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.NoSuchFileException;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -26,8 +28,14 @@ public class LlmConfigProvider {
         TomlParseResult result;
         try {
             result = Toml.parse(configFile.toPath());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        } catch (NoSuchFileException ioException) {
+            logger.error("Failed to load MCP config from {}", configFile, ioException);
+            throw new SystemException(SystemException.ErrorType.LLM_TOML_NOT_FOUND,
+                    "LLM config file '" + configFile.getAbsolutePath() + "' not found!");
+        } catch (IOException ioException) {
+            logger.error("Failed to load MCP config from {}", configFile, ioException);
+            throw new SystemException(SystemException.ErrorType.LLM_TOML_COULD_NOT_BE_LOADED,
+                    ioException.getMessage());
         }
 
         return new LlmConfig("name", Stream.of(
