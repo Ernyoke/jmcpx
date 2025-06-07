@@ -5,6 +5,9 @@ import dev.ervinszilagyi.app.DaggerAppComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
+import system.ConfigFileLoadingException;
+import system.ConfigFileNotFoundException;
+import system.TerminalProvisioningException;
 
 import java.io.File;
 
@@ -20,9 +23,17 @@ public class ListDetailsCommand implements Runnable {
 
     @Override
     public void run() {
-        AppComponent appComponent = DaggerAppComponent.factory()
-                .create(mcpLocation, llmConfigLocation);
+        try {
+            AppComponent appComponent = DaggerAppComponent.factory()
+                    .create(mcpLocation, llmConfigLocation);
 
-        appComponent.listMcpDetails().displayDetails(null);
+            appComponent.listMcpDetails().displayDetails(null);
+        } catch (ConfigFileLoadingException configFileLoadingException) {
+            System.err.println("Config file " + configFileLoadingException.getFile() + " could not be loaded.");
+        } catch (ConfigFileNotFoundException configFileNotFoundException) {
+            System.err.println("Config file " + configFileNotFoundException.getFile() + " cannot be found.");
+        } catch (TerminalProvisioningException terminalProvisioningException) {
+            System.err.println("ANSI Terminal could not be created.");
+        }
     }
 }

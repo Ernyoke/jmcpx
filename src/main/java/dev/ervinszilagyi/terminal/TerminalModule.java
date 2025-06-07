@@ -2,15 +2,20 @@ package dev.ervinszilagyi.terminal;
 
 import dagger.Module;
 import dagger.Provides;
+import dev.ervinszilagyi.config.mcp.McpConfigProvider;
 import jakarta.inject.Singleton;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
-import system.SystemException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import system.TerminalProvisioningException;
 
 import java.io.IOException;
 
 @Module
 public class TerminalModule {
+    private static final Logger logger = LoggerFactory.getLogger(TerminalModule.class);
+
     @Provides
     @Singleton
     public Terminal provideTerminal() {
@@ -21,7 +26,8 @@ public class TerminalModule {
                     .system(true)
                     .build();
         } catch (IOException ioException) {
-            throw new SystemException(SystemException.ErrorType.TERMINAL_COULD_NOT_CREATED, ioException.getMessage());
+            logger.error("Could not create ANSI terminal:", ioException);
+            throw new TerminalProvisioningException(ioException);
         }
     }
 }
