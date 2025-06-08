@@ -15,6 +15,10 @@ import software.amazon.awssdk.regions.Region;
 
 import java.util.List;
 
+/**
+ * Provides an instance of {@link ChatModel} and a {@link ModelInfo} for the DI container.
+ * The model is created based on the configuration provided in {@link LlmConfig}.
+ */
 @Module
 public class ChatModelProvider {
     @Provides

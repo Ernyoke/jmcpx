@@ -27,7 +27,7 @@ public class SquashedChatMemory implements ChatMemory {
     private final ChatMemoryStore store;
 
     @Inject
-    public SquashedChatMemory(@MemoryId String id, final SquashedChatMemoryStore store) {
+    public SquashedChatMemory(final @MemoryId String id, final SquashedChatMemoryStore store) {
         this.id = id;
         this.store = store;
     }
@@ -38,7 +38,7 @@ public class SquashedChatMemory implements ChatMemory {
     }
 
     @Override
-    public void add(ChatMessage message) {
+    public void add(final ChatMessage message) {
         List<ChatMessage> messages = messages();
         if (message instanceof SystemMessage) {
             Optional<SystemMessage> systemMessage = findSystemMessage(messages);
@@ -86,7 +86,7 @@ public class SquashedChatMemory implements ChatMemory {
         }
     }
 
-    private static Optional<SystemMessage> findSystemMessage(List<ChatMessage> messages) {
+    private static Optional<SystemMessage> findSystemMessage(final List<ChatMessage> messages) {
         return messages.stream()
                 .filter(message -> message instanceof SystemMessage)
                 .map(message -> (SystemMessage) message)

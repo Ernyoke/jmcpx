@@ -16,12 +16,12 @@ public class McpLogMessageListener implements McpLogMessageHandler {
     private final StylizedPrinter stylizedPrinter;
 
     @Inject
-    public McpLogMessageListener(StylizedPrinter stylizedPrinter) {
+    public McpLogMessageListener(final StylizedPrinter stylizedPrinter) {
         this.stylizedPrinter = stylizedPrinter;
     }
 
     @Override
-    public void handleLogMessage(McpLogMessage message) {
+    public void handleLogMessage(final McpLogMessage message) {
         switch (message.level()) {
             case ERROR, CRITICAL, ALERT, EMERGENCY ->
                     stylizedPrinter.printError(message.logger() + " " + message.data());

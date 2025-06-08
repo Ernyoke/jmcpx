@@ -13,10 +13,10 @@ import jakarta.inject.Singleton;
 @Module
 public interface ChatMemoryProvider {
     @Binds
-    ChatMemory chatMemory(SquashedChatMemory squashedChatMemory);
+    ChatMemory chatMemory(final SquashedChatMemory squashedChatMemory);
 
     @Binds
-    ChatMemoryStore chatMemoryStore(SquashedChatMemoryStore chatMemoryStore);
+    ChatMemoryStore chatMemoryStore(final SquashedChatMemoryStore chatMemoryStore);
 
     @Provides
     @MemoryId

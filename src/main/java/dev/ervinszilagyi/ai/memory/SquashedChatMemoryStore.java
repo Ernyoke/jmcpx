@@ -15,7 +15,7 @@ public class SquashedChatMemoryStore implements ChatMemoryStore {
     private final Object memoryId;
 
     @Inject
-    public SquashedChatMemoryStore(@MemoryId String memoryId) {
+    public SquashedChatMemoryStore(final @MemoryId String memoryId) {
         this.memoryId = memoryId;
         this.messages = new ArrayList<>();
     }

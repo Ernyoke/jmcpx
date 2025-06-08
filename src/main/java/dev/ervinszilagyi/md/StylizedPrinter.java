@@ -15,6 +15,10 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import java.io.PrintWriter;
 
+/**
+ * StylizedPrinter is a utility class for printing stylized messages to the terminal.
+ * It uses Flexmark for Markdown parsing and formatting, and JLine for terminal output.
+ */
 @Singleton
 public class StylizedPrinter {
     private final Parser parser;

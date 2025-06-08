@@ -37,7 +37,7 @@ public enum ChatSessionCommand {
      * @param input User input.
      * @return true of the input is a command.
      */
-    public boolean isCommand(String input) {
+    public boolean isCommand(final String input) {
         return commandStr.equals(input) || aliases.contains(input);
     }
 

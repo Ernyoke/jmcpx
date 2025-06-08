@@ -7,5 +7,5 @@ import dev.langchain4j.model.chat.listener.ChatModelListener;
 @Module
 public interface ChatModelListenerProvider {
     @Binds
-    ChatModelListener chatModelListener(RequestResponseListener requestResponseListener);
+    ChatModelListener chatModelListener(final RequestResponseListener requestResponseListener);
 }

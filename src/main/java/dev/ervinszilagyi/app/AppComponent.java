@@ -24,6 +24,11 @@ import org.jline.terminal.Terminal;
 import java.io.File;
 import java.util.Map;
 
+/**
+ * Dagger component for the application, providing dependencies for the main application.
+ * This component is responsible for providing instances of various services and configurations
+ * required by the application.
+ */
 @Component(modules = {
         McpConfigProvider.class,
         LlmConfigProvider.class,

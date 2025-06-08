@@ -30,7 +30,7 @@ public class RequestResponseListener implements ChatModelListener {
     }
 
     @Override
-    public void onRequest(ChatModelRequestContext requestContext) {
+    public void onRequest(final ChatModelRequestContext requestContext) {
         ChatRequest chatRequest = requestContext.chatRequest();
         ChatMessage lastMessage = chatRequest.messages().getLast();
         PrintWriter writer = terminal.writer();
@@ -67,7 +67,7 @@ public class RequestResponseListener implements ChatModelListener {
     }
 
     @Override
-    public void onResponse(ChatModelResponseContext responseContext) {
+    public void onResponse(final ChatModelResponseContext responseContext) {
         ChatResponse chatResponse = responseContext.chatResponse();
         AiMessage aiMessage = chatResponse.aiMessage();
         PrintWriter writer = terminal.writer();

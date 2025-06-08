@@ -24,7 +24,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * Build a LLM Client based on the configuration provided.
+ * Provides an {@link LlmClient} instance based on the configuration provided.
+ * It also provides a map of MCP clients that can be used to interact with MCP servers.
  */
 @Module
 public class LlmClientProvider {
