@@ -124,21 +124,21 @@ public class ChatSession {
 
                 this.chatMemory.squashToolExecutions();
 
-            } catch (UserInterruptException | EndOfFileException e) {
+            } catch (final UserInterruptException | EndOfFileException runtimeException) {
                 stylizedPrinter.printSystemMessage("Interrupted by user. Exiting.");
-                logger.error(e.getMessage(), e);
+                logger.error(runtimeException.getMessage(), runtimeException);
                 break;
-            } catch (RateLimitException rateLimitException) {
+            } catch (final RateLimitException rateLimitException) {
                 stylizedPrinter.printError("Rate limited by the LLM provider: " + rateLimitException.getMessage());
                 logger.error(rateLimitException.getMessage(), rateLimitException);
-            } catch (Exception e) {
-                stylizedPrinter.printError(e.getMessage());
-                logger.error(e.getMessage(), e);
+            } catch (final Exception exception) {
+                stylizedPrinter.printError(exception.getMessage());
+                logger.error(exception.getMessage(), exception);
             }
         }
     }
 
-    private Optional<ChatSessionCommand> toCommand(String commandLike) {
+    private Optional<ChatSessionCommand> toCommand(final String commandLike) {
         return commands.stream().filter(command -> command.isCommand(commandLike)).findFirst();
     }
 }

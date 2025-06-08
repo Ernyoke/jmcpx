@@ -2,6 +2,8 @@ package dev.ervinszilagyi.config.llm;
 
 import dagger.Module;
 import dagger.Provides;
+import dev.ervinszilagyi.system.ConfigFileLoadingException;
+import dev.ervinszilagyi.system.ConfigFileNotFoundException;
 import jakarta.inject.Named;
 import jakarta.inject.Singleton;
 import org.slf4j.Logger;
@@ -9,8 +11,6 @@ import org.slf4j.LoggerFactory;
 import org.tomlj.Toml;
 import org.tomlj.TomlParseResult;
 import org.tomlj.TomlTable;
-import system.ConfigFileLoadingException;
-import system.ConfigFileNotFoundException;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,15 +24,15 @@ public class LlmConfigProvider {
 
     @Provides
     @Singleton
-    public LlmConfig llmConfig(@Named("llmConfig") File configFile) {
+    public LlmConfig llmConfig(final @Named("llmConfig") File configFile) {
         logger.info("Loading LLM config from {}", configFile);
         TomlParseResult result;
         try {
             result = Toml.parse(configFile.toPath());
-        } catch (NoSuchFileException ioException) {
+        } catch (final NoSuchFileException ioException) {
             logger.error("Failed to load MCP config from {}", configFile, ioException);
             throw new ConfigFileNotFoundException(configFile.getAbsoluteFile());
-        } catch (IOException ioException) {
+        } catch (final IOException ioException) {
             logger.error("Failed to load MCP config from {}", configFile, ioException);
             throw new ConfigFileLoadingException(ioException, configFile.getAbsoluteFile());
         }
@@ -48,7 +48,7 @@ public class LlmConfigProvider {
                 .toList());
     }
 
-    private static Optional<AnthropicConfig> parseAnthropicConfig(TomlTable anthropicSection) {
+    private static Optional<AnthropicConfig> parseAnthropicConfig(final TomlTable anthropicSection) {
         if (anthropicSection.isEmpty()) {
             return Optional.empty();
         }
@@ -67,7 +67,7 @@ public class LlmConfigProvider {
         return Optional.of(new AnthropicConfig(modelName, apiKey, isDefault));
     }
 
-    private static Optional<OpenAiConfig> parseOpenAiConfig(TomlTable openAiSection) {
+    private static Optional<OpenAiConfig> parseOpenAiConfig(final TomlTable openAiSection) {
         if (openAiSection.isEmpty()) {
             return Optional.empty();
         }
@@ -86,7 +86,7 @@ public class LlmConfigProvider {
         return Optional.of(new OpenAiConfig(modelName, apiKey, isDefault));
     }
 
-    private static Optional<GoogleConfig> parseGoogleConfig(TomlTable googleSection) {
+    private static Optional<GoogleConfig> parseGoogleConfig(final TomlTable googleSection) {
         if (googleSection.isEmpty()) {
             return Optional.empty();
         }
@@ -105,7 +105,7 @@ public class LlmConfigProvider {
         return Optional.of(new GoogleConfig(modelName, apiKey, isDefault));
     }
 
-    private static Optional<BedrockConfig> parseBedrockConfig(TomlTable bedrockSection) {
+    private static Optional<BedrockConfig> parseBedrockConfig(final TomlTable bedrockSection) {
         if (bedrockSection.isEmpty()) {
             return Optional.empty();
         }

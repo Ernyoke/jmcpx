@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,7 +21,7 @@ public class McpServerDetailsRetriever {
     private static final Logger logger = LoggerFactory.getLogger(McpServerDetailsRetriever.class);
 
     @Inject
-    public McpServerDetailsRetriever(Map<String, McpClient> mcpClients) {
+    public McpServerDetailsRetriever(final Map<String, McpClient> mcpClients) {
         this.mcpClients = mcpClients;
     }
 
@@ -37,8 +38,9 @@ public class McpServerDetailsRetriever {
             for (Map.Entry<String, McpClient> entry : mcpClients.entrySet()) {
                 try {
                     toolsByServer.put(entry.getKey(), entry.getValue().listTools());
-                } catch (McpException e) {
-                    logger.error("Could not retrieve tools for server {}. Error {}:", serverName, e.getMessage());
+                } catch (final McpException mcpException) {
+                    logger.error("Could not retrieve tools for server {}. Error {}:",
+                            serverName, mcpException.getMessage());
                 }
             }
         } else {
@@ -60,8 +62,9 @@ public class McpServerDetailsRetriever {
             for (Map.Entry<String, McpClient> entry : mcpClients.entrySet()) {
                 try {
                     promptsByServer.put(entry.getKey(), entry.getValue().listPrompts());
-                } catch (McpException e) {
-                    logger.error("Could not retrieve prompts for server {}. Error {}:", serverName, e.getMessage());
+                } catch (final McpException mcpException) {
+                    logger.error("Could not retrieve prompts for server {}. Error {}:", serverName,
+                            mcpException.getMessage());
                 }
             }
         } else {
@@ -83,8 +86,9 @@ public class McpServerDetailsRetriever {
             for (Map.Entry<String, McpClient> entry : mcpClients.entrySet()) {
                 try {
                     resourcesByServer.put(entry.getKey(), entry.getValue().listResources());
-                } catch (McpException e) {
-                    logger.error("Could not retrieve resources for server {}. Error {}:", serverName, e.getMessage());
+                } catch (final McpException mcpException) {
+                    logger.error("Could not retrieve resources for server {}. Error {}:",
+                            serverName, mcpException.getMessage());
                 }
             }
         } else {
@@ -106,8 +110,9 @@ public class McpServerDetailsRetriever {
             for (Map.Entry<String, McpClient> entry : mcpClients.entrySet()) {
                 try {
                     resourceTemplatesByServer.put(entry.getKey(), entry.getValue().listResourceTemplates());
-                } catch (McpException e) {
-                    logger.error("Could not retrieve resource templates for server {}. Error {}:", serverName, e.getMessage());
+                } catch (final McpException mcpException) {
+                    logger.error("Could not retrieve resource templates for server {}. Error {}:",
+                            serverName, mcpException.getMessage());
                 }
             }
         } else {
