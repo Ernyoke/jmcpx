@@ -1,4 +1,4 @@
-package system;
+package dev.ervinszilagyi.system;
 
 import java.io.File;
 
