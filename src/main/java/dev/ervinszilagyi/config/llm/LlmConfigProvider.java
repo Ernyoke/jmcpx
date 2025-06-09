@@ -25,6 +25,16 @@ import java.util.stream.Stream;
 public class LlmConfigProvider {
     private static final Logger logger = LoggerFactory.getLogger(LlmConfigProvider.class);
 
+    /**
+     * A functional interface for creating model configurations.
+     *
+     * @param <T> the type of the model configuration
+     */
+    @FunctionalInterface
+    private interface ConfigCreator<T extends ModelConfig> {
+        T create(String modelName, String apiKey, boolean isDefault);
+    }
+
     @Provides
     @Singleton
     public LlmConfig llmConfig(final @Named("llmConfig") File configFile) {
@@ -55,11 +65,15 @@ public class LlmConfigProvider {
                 .toList());
     }
 
-    @FunctionalInterface
-    public interface ConfigCreator<T extends ModelConfig> {
-        T create(String modelName, String apiKey, boolean isDefault);
-    }
-
+    /**
+     * Parses a TOML array containing API key-based configurations.
+     *
+     * @param tomlArray     the TOML array to parse
+     * @param configName    the name of the configuration (for logging purposes)
+     * @param configCreator a function to create the configuration object
+     * @param <T>           the type of the configuration object
+     * @return a list of parsed configurations
+     */
     private static <T extends ModelConfig> List<T> parseApiKeyBasedConfig(final TomlArray tomlArray,
                                                                           final String configName,
                                                                           final ConfigCreator<T> configCreator) {
