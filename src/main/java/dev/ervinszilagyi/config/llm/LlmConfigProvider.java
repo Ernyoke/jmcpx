@@ -9,13 +9,16 @@ import jakarta.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tomlj.Toml;
+import org.tomlj.TomlArray;
 import org.tomlj.TomlParseResult;
 import org.tomlj.TomlTable;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.NoSuchFileException;
-import java.util.Optional;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.stream.Stream;
 
 @Module
@@ -38,88 +41,80 @@ public class LlmConfigProvider {
         }
 
         return new LlmConfig("name", Stream.of(
-                        parseAnthropicConfig(result.getTableOrEmpty("anthropic")),
-                        parseOpenAiConfig(result.getTableOrEmpty("openai")),
-                        parseGoogleConfig(result.getTableOrEmpty("gemini")),
-                        parseBedrockConfig(result.getTableOrEmpty("bedrock"))
-                )
-                .filter(Optional::isPresent)
-                .flatMap(Optional::stream)
+                        parseApiKeyBasedConfig(result.getArrayOrEmpty("anthropic"),
+                                "Anthropic",
+                                AnthropicConfig::new),
+                        parseApiKeyBasedConfig(result.getArrayOrEmpty("openai"),
+                                "OpenAI",
+                                OpenAiConfig::new),
+                        parseApiKeyBasedConfig(result.getArrayOrEmpty("google"),
+                                "Google Gemini",
+                                GoogleConfig::new),
+                        parseBedrockConfig(result.getArrayOrEmpty("bedrock"))
+                ).flatMap(Collection::stream)
                 .toList());
     }
 
-    private static Optional<AnthropicConfig> parseAnthropicConfig(final TomlTable anthropicSection) {
-        if (anthropicSection.isEmpty()) {
-            return Optional.empty();
-        }
-
-        logger.info("Loading Anthropic config.");
-        String modelName = anthropicSection.getString("modelName");
-        String apiKey = anthropicSection.getString("apiKey");
-        boolean isDefault = Boolean.TRUE.equals(anthropicSection.getBoolean("default"));
-
-        if (isDefault) {
-            logger.info("Anthropic model {} loaded as default.", modelName);
-        } else {
-            logger.info("Anthropic model {} loaded.", modelName);
-        }
-
-        return Optional.of(new AnthropicConfig(modelName, apiKey, isDefault));
+    @FunctionalInterface
+    public interface ConfigCreator<T extends ModelConfig> {
+        T create(String modelName, String apiKey, boolean isDefault);
     }
 
-    private static Optional<OpenAiConfig> parseOpenAiConfig(final TomlTable openAiSection) {
-        if (openAiSection.isEmpty()) {
-            return Optional.empty();
+    private static <T extends ModelConfig> List<T> parseApiKeyBasedConfig(final TomlArray tomlArray,
+                                                                          final String configName,
+                                                                          final ConfigCreator<T> configCreator) {
+        List<T> apiKeyBasedConfigs = new ArrayList<>();
+        logger.info("Loading {} config.", configName);
+        if (tomlArray.isEmpty()) {
+            return List.of();
         }
 
-        logger.info("Loading OpenAI config.");
-        String modelName = openAiSection.getString("modelName");
-        String apiKey = openAiSection.getString("apiKey");
-        boolean isDefault = Boolean.TRUE.equals(openAiSection.getBoolean("default"));
+        for (var item : tomlArray.toList()) {
+            if (!(item instanceof TomlTable table)) {
+                logger.warn("{} section contains non-table item: {}", configName, item);
+                continue;
+            }
+            String modelName = table.getString("modelName");
+            String apiKey = table.getString("apiKey");
+            boolean isDefault = Boolean.TRUE.equals(table.getBoolean("default"));
 
-        if (isDefault) {
-            logger.info("OpenAI model {} loaded as default.", modelName);
-        } else {
-            logger.info("OpenAI model {} loaded.", modelName);
+            if (isDefault) {
+                logger.info("{} model {} loaded as default.", configName, modelName);
+            } else {
+                logger.info("{} model {} loaded.", configName, modelName);
+            }
+
+            apiKeyBasedConfigs.add(configCreator.create(modelName, apiKey, isDefault));
         }
 
-        return Optional.of(new OpenAiConfig(modelName, apiKey, isDefault));
+        return apiKeyBasedConfigs;
     }
 
-    private static Optional<GoogleConfig> parseGoogleConfig(final TomlTable googleSection) {
-        if (googleSection.isEmpty()) {
-            return Optional.empty();
-        }
-
-        logger.info("Loading Google Gemini config.");
-        String modelName = googleSection.getString("modelName");
-        String apiKey = googleSection.getString("apiKey");
-        boolean isDefault = Boolean.TRUE.equals(googleSection.getBoolean("default"));
-
-        if (isDefault) {
-            logger.info("Google Gemini model {} loaded as default.", modelName);
-        } else {
-            logger.info("Google Gemini model {} loaded.", modelName);
-        }
-
-        return Optional.of(new GoogleConfig(modelName, apiKey, isDefault));
-    }
-
-    private static Optional<BedrockConfig> parseBedrockConfig(final TomlTable bedrockSection) {
-        if (bedrockSection.isEmpty()) {
-            return Optional.empty();
-        }
+    private static List<BedrockConfig> parseBedrockConfig(final TomlArray tomlArray) {
+        List<BedrockConfig> bedrockConfigs = new ArrayList<>();
         logger.info("Loading Amazon Bedrock config.");
-        String modelId = bedrockSection.getString("modelId");
-        String modelRegion = bedrockSection.getString("region");
-        boolean isDefault = Boolean.TRUE.equals(bedrockSection.getBoolean("default"));
-
-        if (isDefault) {
-            logger.info("Bedrock base model {} loaded as default. Region for the model {}", modelId, modelRegion);
-        } else {
-            logger.info("Bedrock base model {} loaded. Region for the model {}", modelId, modelRegion);
+        if (tomlArray.isEmpty()) {
+            return List.of();
         }
 
-        return Optional.of(new BedrockConfig(modelId, modelRegion, isDefault));
+        for (var item : tomlArray.toList()) {
+            if (!(item instanceof TomlTable table)) {
+                logger.warn("Amazon Bedrock section contains non-table item: {}", item);
+                continue;
+            }
+            String modelName = table.getString("modelName");
+            String apiKey = table.getString("apiKey");
+            boolean isDefault = Boolean.TRUE.equals(table.getBoolean("default"));
+
+            if (isDefault) {
+                logger.info("Amazon Bedrock model {} loaded as default.", modelName);
+            } else {
+                logger.info("Amazon Bedrock model {} loaded.", modelName);
+            }
+
+            bedrockConfigs.add(new BedrockConfig(modelName, apiKey, isDefault));
+        }
+
+        return bedrockConfigs;
     }
 }

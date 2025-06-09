@@ -86,17 +86,32 @@ The `mcp.json` file defines the MCP servers and their configurations. Example:
 ```
 
 ### LLM Configuration
+
 The `llm.toml` file defines the LLM configurations. Example:
+
 ```toml
-[openai]
-modelName = "gpt-4"
-apiKey = "your-openai-api-key"
+[[bedrock]]
+modelId = "amazon.nova-pro-v1:0"
+region = "us-east-1"
+
+[[anthropic]]
+modelName = "claude-sonnet-4-20250514"
+apiKey = "..."
 default = true
 
-[anthropic]
-modelName = "claude-v1"
-apiKey = "your-anthropic-api-key"
-default = false
+modelName = "claude-3-7-sonnet-20250219"
+apiKey = "..."
+
+[[openai]]
+modelName = "gpt-4o-2024-08-06"
+apiKey = "..."
+
+modelName = "gpt-4.1-2025-04-14"
+apiKey = "..."
+
+[[google]]
+modelName = "gemini-2.5-pro-preview-05-06"
+apiKey = "..."
 ```
 
 ## Logging
