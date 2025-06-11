@@ -10,6 +10,7 @@ import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.chat.listener.ChatModelListener;
 import dev.langchain4j.model.googleai.GoogleAiGeminiChatModel;
 import dev.langchain4j.model.openai.OpenAiChatModel;
+import jakarta.inject.Named;
 import jakarta.inject.Singleton;
 import software.amazon.awssdk.regions.Region;
 
@@ -24,36 +25,36 @@ public class ChatModelProvider {
     @Provides
     @Singleton
     public ChatModelWithInfo chatModel(final LlmConfig llmConfig,
-                                       final ChatModelListener chatModelListener) {
+                                       final ChatModelListener chatModelListener,
+                                       @Named("detailedLoggingEnabled") final boolean isDetailedLoggingEnabled) {
         ModelConfig modelConfig = llmConfig.getDefaultConfig();
         List<ChatModelListener> listeners = List.of(chatModelListener);
-        boolean isLlmLoggingEnabled = true;
         ChatModel chatModel = switch (modelConfig) {
             case AnthropicConfig anthropicConfig -> AnthropicChatModel.builder()
                     .apiKey(anthropicConfig.apiKey())
                     .modelName(anthropicConfig.modelName())
-                    .logRequests(isLlmLoggingEnabled)
-                    .logResponses(isLlmLoggingEnabled)
+                    .logRequests(isDetailedLoggingEnabled)
+                    .logResponses(isDetailedLoggingEnabled)
                     .listeners(listeners)
                     .build();
             case OpenAiConfig openAiConfig -> OpenAiChatModel.builder()
                     .apiKey(openAiConfig.apiKey())
                     .modelName(openAiConfig.modelName())
-                    .logRequests(isLlmLoggingEnabled)
-                    .logResponses(isLlmLoggingEnabled)
+                    .logRequests(isDetailedLoggingEnabled)
+                    .logResponses(isDetailedLoggingEnabled)
                     .listeners(listeners)
                     .build();
             case GoogleConfig googleConfig -> GoogleAiGeminiChatModel.builder()
                     .modelName(googleConfig.modelName())
                     .apiKey(googleConfig.apiKey())
-                    .logRequestsAndResponses(isLlmLoggingEnabled)
+                    .logRequestsAndResponses(isDetailedLoggingEnabled)
                     .listeners(listeners)
                     .build();
             case BedrockConfig bedrockConfig -> BedrockChatModel.builder()
                     .modelId(bedrockConfig.modelId())
                     .region(Region.of(bedrockConfig.region()))
-                    .logRequests(isLlmLoggingEnabled)
-                    .logResponses(isLlmLoggingEnabled)
+                    .logRequests(isDetailedLoggingEnabled)
+                    .logResponses(isDetailedLoggingEnabled)
                     .listeners(listeners)
                     .build();
             default -> throw new IllegalStateException("Unexpected value: " + modelConfig);

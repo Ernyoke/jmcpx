@@ -19,9 +19,9 @@ public class SessionCommand implements Runnable {
     @CommandLine.Option(names = {"-l", "--llm"}, description = "Location of the llm.toml file.", defaultValue = "${sys:user.home}/llm.toml")
     private File llmConfigLocation;
 
-    @CommandLine.Option(names = {"-d", "--debug"}, description = "Run application is debug mode with. This will enable " +
-            "enhanced logging for each request and response to LLMs.")
-    private boolean debugMode;
+    @CommandLine.Option(names = {"-v", "--verboseLogging"}, description = "Enable detailed logging such as requests/" +
+            "responses from LLM models.", defaultValue = "false")
+    private boolean detailedLoggingEnabled;
 
     private static final Logger logger = LoggerFactory.getLogger(SessionCommand.class);
 
@@ -29,7 +29,7 @@ public class SessionCommand implements Runnable {
     public void run() {
         try {
             AppComponent appComponent = DaggerAppComponent.factory()
-                    .create(mcpLocation, llmConfigLocation);
+                    .create(mcpLocation, llmConfigLocation, detailedLoggingEnabled);
             appComponent.chatSession().openSession();
         } catch (final ConfigFileLoadingException configFileLoadingException) {
             System.err.println("Config file " + configFileLoadingException.getFile() + " could not be loaded.");

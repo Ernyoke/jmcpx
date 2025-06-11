@@ -19,13 +19,17 @@ public class ListDetailsCommand implements Runnable {
     @CommandLine.Option(names = {"-l", "--llm"}, description = "Location of the llm.toml file.", defaultValue = "${sys:user.home}/llm.toml")
     private File llmConfigLocation;
 
+    @CommandLine.Option(names = {"-v", "--verboseLogging"}, description = "Enable detailed logging such as requests/" +
+            "responses from LLM models.", defaultValue = "false")
+    private boolean detailedLoggingEnabled;
+
     private static final Logger logger = LoggerFactory.getLogger(ListDetailsCommand.class);
 
     @Override
     public void run() {
         try {
             AppComponent appComponent = DaggerAppComponent.factory()
-                    .create(mcpLocation, llmConfigLocation);
+                    .create(mcpLocation, llmConfigLocation, detailedLoggingEnabled);
 
             appComponent.listMcpDetails().displayDetails(null);
         } catch (final ConfigFileLoadingException configFileLoadingException) {

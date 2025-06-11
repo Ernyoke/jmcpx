@@ -44,6 +44,7 @@ public interface AppComponent {
     @Component.Factory
     interface Factory {
         AppComponent create(@BindsInstance @Named("mcpConfig") File mcpConfig,
-                            @BindsInstance @Named("llmConfig") File llmConfig);
+                            @BindsInstance @Named("llmConfig") File llmConfig,
+                            @BindsInstance @Named("detailedLoggingEnabled") boolean isDetailedLoggingEnabled);
     }
 }
