@@ -4,6 +4,7 @@ import dev.ervinszilagyi.app.AppComponent;
 import dev.ervinszilagyi.app.DaggerAppComponent;
 import dev.ervinszilagyi.system.ConfigFileLoadingException;
 import dev.ervinszilagyi.system.ConfigFileNotFoundException;
+import dev.ervinszilagyi.system.InvalidLlmConfigException;
 import dev.ervinszilagyi.system.TerminalProvisioningException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +38,8 @@ public class SessionCommand implements Runnable {
             System.err.println("Config file " + configFileNotFoundException.getFile() + " cannot be found.");
         } catch (final TerminalProvisioningException terminalProvisioningException) {
             System.err.println("ANSI Terminal could not be created.");
+        } catch (final InvalidLlmConfigException invalidLlmConfigException) {
+            System.err.println(invalidLlmConfigException.getMessage());
         }
     }
 }

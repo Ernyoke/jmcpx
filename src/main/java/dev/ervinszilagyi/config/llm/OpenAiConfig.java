@@ -1,6 +1,7 @@
 package dev.ervinszilagyi.config.llm;
 
-public record OpenAiConfig(String modelName, String apiKey, boolean isDefault) implements ModelConfig {
+public record OpenAiConfig(String modelName, String apiKey, boolean isDefault)
+        implements ModelConfig, ApiKeyBasedModelConfig {
     @Override
     public boolean isDefault() {
         return isDefault;

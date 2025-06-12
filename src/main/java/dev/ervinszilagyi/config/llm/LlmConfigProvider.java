@@ -4,6 +4,7 @@ import dagger.Module;
 import dagger.Provides;
 import dev.ervinszilagyi.system.ConfigFileLoadingException;
 import dev.ervinszilagyi.system.ConfigFileNotFoundException;
+import dev.ervinszilagyi.system.InvalidLlmConfigException;
 import jakarta.inject.Named;
 import jakarta.inject.Singleton;
 import org.slf4j.Logger;
@@ -50,7 +51,7 @@ public class LlmConfigProvider {
             throw new ConfigFileLoadingException(ioException, configFile.getAbsoluteFile());
         }
 
-        return new LlmConfig("name", Stream.of(
+        LlmConfig llmConfig = new LlmConfig("name", Stream.of(
                         parseApiKeyBasedConfig(result.getArrayOrEmpty("anthropic"),
                                 "Anthropic",
                                 AnthropicConfig::new),
@@ -63,6 +64,21 @@ public class LlmConfigProvider {
                         parseBedrockConfig(result.getArrayOrEmpty("bedrock"))
                 ).flatMap(Collection::stream)
                 .toList());
+
+        verifyConfig(llmConfig);
+        return llmConfig;
+    }
+
+    /**
+     * Verifies that the provided LLM configuration contains at least one default model configuration.
+     *
+     * @param llmConfig the LLM configuration to verify
+     * @throws InvalidLlmConfigException if no default model configuration is found
+     */
+    private void verifyConfig(final LlmConfig llmConfig) {
+        if (llmConfig.modelConfigs().stream().noneMatch(ModelConfig::isDefault)) {
+            throw new InvalidLlmConfigException("LLM configuration must contain at least one default model configuration.");
+        }
     }
 
     /**

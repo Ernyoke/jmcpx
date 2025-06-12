@@ -99,6 +99,7 @@ modelName = "claude-sonnet-4-20250514"
 apiKey = "..."
 default = true
 
+[[anthropic]]
 modelName = "claude-3-7-sonnet-20250219"
 apiKey = "..."
 
@@ -106,6 +107,7 @@ apiKey = "..."
 modelName = "gpt-4o-2024-08-06"
 apiKey = "..."
 
+[[openai]]
 modelName = "gpt-4.1-2025-04-14"
 apiKey = "..."
 
