@@ -1,6 +1,6 @@
 # jmcpx
 
-jmcpx is a Command-Line Interface (CLI) client designed for interacting with MCP (Modular Command Processor) servers. It provides a robust set of tools to manage and interact with MCP servers while seamlessly integrating with various Large Language Model (LLM) configurations.
+jmcpx is a Command-Line Interface (CLI) client designed for interacting with MCP (Model Context Protocol) servers. It provides a robust set of tools to manage and interact with MCP servers while seamlessly integrating with various Large Language Model (LLM) configurations.
 
 ## Features
 
