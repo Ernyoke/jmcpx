@@ -75,10 +75,18 @@ The `mcp.json` file defines the MCP servers and their configurations. Example:
 {
   "mcpServers": {
     "server1": {
+      "transport": "stdio",
       "command": "path/to/server1",
       "args": ["--arg1", "--arg2"],
       "env": {
         "ENV_VAR1": "value1"
+      }
+    },
+    "server2": {
+      "transport": "http",
+      "url": "https://myserver.com/mcp",
+      "headers": {
+        "Authorization": "Bearer ..."
       }
     }
   }
