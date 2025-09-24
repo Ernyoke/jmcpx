@@ -48,7 +48,9 @@ public class LlmConfigProvider {
             throw new ConfigFileNotFoundException(configFile.getAbsoluteFile());
         } catch (final IOException ioException) {
             logger.error("Failed to load MCP config from {}", configFile, ioException);
-            throw new ConfigFileLoadingException(ioException, configFile.getAbsoluteFile());
+            throw new ConfigFileLoadingException(ioException,
+                    "Config file cannot be found or it cannot be parsed.",
+                    configFile.getAbsoluteFile());
         }
 
         LlmConfig llmConfig = new LlmConfig("name", Stream.of(

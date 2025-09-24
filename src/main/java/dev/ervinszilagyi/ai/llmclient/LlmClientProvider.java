@@ -5,11 +5,14 @@ import dagger.Provides;
 import dev.ervinszilagyi.ai.chatmodel.ChatModelWithInfo;
 import dev.ervinszilagyi.config.mcp.McpConfig;
 import dev.ervinszilagyi.config.mcp.McpServer;
+import dev.ervinszilagyi.config.mcp.StdioMcpServer;
+import dev.ervinszilagyi.config.mcp.StreamableHttpMcpServer;
 import dev.langchain4j.mcp.McpToolProvider;
 import dev.langchain4j.mcp.client.DefaultMcpClient;
 import dev.langchain4j.mcp.client.McpClient;
 import dev.langchain4j.mcp.client.logging.McpLogMessageHandler;
 import dev.langchain4j.mcp.client.transport.McpTransport;
+import dev.langchain4j.mcp.client.transport.http.StreamableHttpMcpTransport;
 import dev.langchain4j.mcp.client.transport.stdio.StdioMcpTransport;
 import dev.langchain4j.memory.ChatMemory;
 import dev.langchain4j.service.AiServices;
@@ -19,9 +22,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Provides an {@link LlmClient} instance based on the configuration provided.
@@ -67,26 +72,55 @@ public class LlmClientProvider {
     @Provides
     public Map<String, McpClient> mcpClients(final McpConfig mcpConfig,
                                              final McpLogMessageHandler mcpLogMessageHandler) {
-        record McpClientWithName(String name, McpClient mcpClient) {
-        }
 
         boolean detailedLoggingEnabled = true;
 
-        return mcpConfig.mcpServers().entrySet().stream()
-                .map(entry -> {
-                    McpServer mcpServer = entry.getValue();
-                    List<String> command = new ArrayList<>(List.of(mcpServer.command()));
-                    command.addAll(mcpServer.args());
-                    McpTransport transport = new StdioMcpTransport.Builder()
+        Map<String, McpClient> mcpClients = new HashMap<>();
+        for (Map.Entry<String, McpServer> entry : mcpConfig.mcpServers().entrySet()) {
+            String serverName = entry.getKey();
+            McpServer mcpServer = entry.getValue();
+
+            McpTransport transport = switch (mcpServer) {
+                case StdioMcpServer stdioMcpServer -> {
+                    List<String> command = new ArrayList<>(List.of(stdioMcpServer.command()));
+                    command.addAll(stdioMcpServer.args());
+
+                    yield new StdioMcpTransport.Builder()
                             .command(command)
-                            .environment(mcpServer.env())
+                            .environment(stdioMcpServer.env())
                             .logEvents(detailedLoggingEnabled)
                             .build();
-                    return new McpClientWithName(entry.getKey(), new DefaultMcpClient.Builder()
-                            .transport(transport)
-                            .logHandler(mcpLogMessageHandler)
-                            .build());
-                })
-                .collect(Collectors.toMap(McpClientWithName::name, McpClientWithName::mcpClient));
+                }
+                case StreamableHttpMcpServer streamableHttpMcpServer -> new StreamableHttpMcpTransport.Builder()
+                        .url(streamableHttpMcpServer.url())
+                        .customHeaders(streamableHttpMcpServer.headers())
+                        .build();
+                default -> throw new IllegalStateException("Unexpected value: " + mcpServer);
+            };
+
+            try {
+                mcpClients.put(serverName,
+                        new DefaultMcpClient.Builder()
+                                .transport(transport)
+                                .logHandler(mcpLogMessageHandler)
+                                .build());
+            } catch (Exception exception) {
+                logger.error("Could not start MCP server {}", serverName, exception);
+                System.err.println("Could not start MCP server " + serverName);
+                switch (exception.getCause()) {
+                    case ExecutionException executionException -> {
+                        System.err.println("Network connection failed. Reason:" + executionException.getMessage());
+                    }
+                    case TimeoutException timeoutException -> {
+                        System.err.println("Command execution timed out. Reason:" + timeoutException.getMessage());
+                    }
+                    default -> {
+                        Throwable cause = exception.getCause();
+                        System.err.println("Reason:" + cause.getMessage());
+                    }
+                }
+            }
+        }
+        return mcpClients;
     }
 }

@@ -1,6 +1,7 @@
 package dev.ervinszilagyi.config.mcp;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
 import dagger.Module;
 import dagger.Provides;
 import dev.ervinszilagyi.system.ConfigFileLoadingException;
@@ -28,9 +29,15 @@ public class McpConfigProvider {
         } catch (final FileNotFoundException fileNotFoundException) {
             logger.error("Failed to load MCP config from {}", configFile, fileNotFoundException);
             throw new ConfigFileNotFoundException(configFile.getAbsoluteFile());
+        } catch (InvalidTypeIdException invalidTypeIdException) {
+            logger.error("Failed to load MCP config from {}", configFile, invalidTypeIdException);
+            throw new ConfigFileLoadingException(invalidTypeIdException,
+                    "Missing transport type or transport type is wrong for one of the MCP servers. Allowed transport types are http or stdio.",
+                    configFile.getAbsoluteFile());
         } catch (final IOException ioException) {
             logger.error("Failed to load MCP config from {}", configFile, ioException);
-            throw new ConfigFileLoadingException(ioException, configFile.getAbsoluteFile());
+            throw new ConfigFileLoadingException(ioException, "MCP file not found or it cannot be opened!",
+                    configFile.getAbsoluteFile());
         }
     }
 }

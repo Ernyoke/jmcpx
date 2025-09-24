@@ -1,7 +1,19 @@
 package dev.ervinszilagyi.config.mcp;
 
-import java.util.List;
-import java.util.Map;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-public record McpServer(String command, List<String> args, Map<String, String> env) {
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.NAME,
+        include = JsonTypeInfo.As.PROPERTY,
+        property = "transport"
+)
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = StdioMcpServer.class, name = "stdio"),
+        @JsonSubTypes.Type(value = StreamableHttpMcpServer.class, name = "http")
+})
+public interface McpServer {
+    enum Transport {
+        STDIO, HTTP
+    }
 }
